@@ -474,7 +474,7 @@ def main():
         # Info
         st.markdown("### ℹ️ About")
         st.info(
-            "AdSnap Studio is a professional AI-powered image editing platform "
+            "Stencil is a professional AI-powered image editing platform "
             "that helps you create stunning visuals for your products and marketing needs."
         )
 
@@ -658,7 +658,7 @@ def main():
                     st.download_button(
                         "⬇️ Download Image",
                         image_data,
-                        f"adsnap_generated_{int(time.time())}.png",
+                        f"Stencil_generated_{int(time.time())}.png",
                         "image/png",
                         use_container_width=True
                     )
@@ -1304,7 +1304,7 @@ def main():
                         st.download_button(
                             "⬇️ Download Result",
                             image_data,
-                            f"adsnap_erased_{int(time.time())}.png",
+                            f"Stencil_erased_{int(time.time())}.png",
                             "image/png",
                             key="erase_download",
                             use_container_width=True
@@ -1398,7 +1398,7 @@ def main():
                         st.download_button(
                             "⬇️ Download Filtered Image",
                             st.session_state.filtered_image_bytes,
-                            f"adsnap_filtered_{int(time.time())}.png",
+                            f"Stencil_filtered_{int(time.time())}.png",
                             "image/png",
                             use_container_width=True
                         )

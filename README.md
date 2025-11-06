@@ -1,8 +1,8 @@
-# 🎨 AdSnap Studio
+# 🎨 Stencil
 
 **Professional AI-Powered Image Generation & Editing Platform**
 
-AdSnap Studio is a comprehensive Streamlit-based web application that leverages Bria AI's powerful APIs to provide professional image generation, editing, and enhancement capabilities.
+Stencil is a comprehensive Streamlit-based web application that leverages Bria AI's powerful APIs to provide professional image generation, editing, and enhancement capabilities.
 
 ## ✨ Features
 
