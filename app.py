@@ -519,7 +519,7 @@ def main():
             # Enhance Prompt button
             col_a, col_b = st.columns([1, 1])
             with col_a:
-                if st.button("✨ Enhance Prompt", key="enhance_button", use_container_width=True):
+                if st.button("✨ Enhance Prompt", key="enhance_button"):
                     if not prompt:
                         st.warning("⚠️ Please enter a prompt to enhance.")
                     elif not st.session_state.api_key:
@@ -538,7 +538,7 @@ def main():
                                 st.error(f"❌ Error: {str(e)}")
             
             with col_b:
-                if st.button("🔄 Reset Prompt", key="reset_prompt", use_container_width=True):
+                if st.button("🔄 Reset Prompt", key="reset_prompt"):
                     st.session_state.enhanced_prompt = None
                     st.rerun()
             
@@ -579,7 +579,7 @@ def main():
         st.markdown("---")
         col_gen1, col_gen2, col_gen3 = st.columns([1, 2, 1])
         with col_gen2:
-            if st.button("🎨 Generate Images", type="primary", use_container_width=True):
+            if st.button("🎨 Generate Images", type="primary"):
                 if not st.session_state.api_key:
                     st.error("⚠️ Please enter your API key in the sidebar.")
                     return
@@ -652,15 +652,14 @@ def main():
             st.markdown("### 🖼️ Generated Result")
             col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
             with col_img2:
-                st.image(st.session_state.edited_image, use_container_width=True)
+                st.image(st.session_state.edited_image, use_column_width=True)
                 image_data = download_image(st.session_state.edited_image)
                 if image_data:
                     st.download_button(
                         "⬇️ Download Image",
                         image_data,
                         f"Stencil_generated_{int(time.time())}.png",
-                        "image/png",
-                        use_container_width=True
+                        "image/png"
                     )
     
     # Product Photography Tab
@@ -672,7 +671,7 @@ def main():
             col1, col2 = st.columns(2)
             
             with col1:
-                st.image(uploaded_file, caption="Original Image", use_container_width=True)
+                st.image(uploaded_file, caption="Original Image", use_column_width=True)
                 
                 # Product editing options
                 edit_option = st.selectbox("Select Edit Option", [
@@ -690,7 +689,7 @@ def main():
                         force_rmbg = st.checkbox("✂️ Force Background Removal", False)
                         content_moderation = st.checkbox("🛡️ Enable Content Moderation", False)
                     
-                    if st.button("✨ Create Packshot", use_container_width=True):
+                    if st.button("✨ Create Packshot"):
                         if not st.session_state.api_key:
                             st.error("⚠️ Please enter your API key in the sidebar.")
                             return
@@ -1046,7 +1045,7 @@ def main():
             
             with col2:
                 if st.session_state.edited_image:
-                    st.image(st.session_state.edited_image, caption="Edited Image", use_container_width=True)
+                    st.image(st.session_state.edited_image, caption="Edited Image", use_column_width=True)
                     image_data = download_image(st.session_state.edited_image)
                     if image_data:
                         st.download_button(
@@ -1072,7 +1071,7 @@ def main():
             
             with col1:
                 # Display original image
-                st.image(uploaded_file, caption="Original Image", use_container_width=True)
+                st.image(uploaded_file, caption="Original Image", use_column_width=True)
                 
                 # Get image dimensions for canvas
                 img = Image.open(uploaded_file)
@@ -1204,7 +1203,7 @@ def main():
             
             with col2:
                 if st.session_state.edited_image:
-                    st.image(st.session_state.edited_image, caption="Generated Result", use_container_width=True)
+                    st.image(st.session_state.edited_image, caption="Generated Result", use_column_width=True)
                     image_data = download_image(st.session_state.edited_image)
                     if image_data:
                         st.download_button(
@@ -1227,7 +1226,7 @@ def main():
             
             with col1:
                 # Display original image
-                st.image(uploaded_file, caption="Original Image", use_container_width=True)
+                st.image(uploaded_file, caption="Original Image", use_column_width=True)
                 
                 # Get image dimensions for canvas
                 img = Image.open(uploaded_file)
@@ -1298,7 +1297,7 @@ def main():
             
             with col2:
                 if st.session_state.edited_image:
-                    st.image(st.session_state.edited_image, caption="✨ Result", use_container_width=True)
+                    st.image(st.session_state.edited_image, caption="✨ Result", use_column_width=True)
                     image_data = download_image(st.session_state.edited_image)
                     if image_data:
                         st.download_button(
@@ -1306,8 +1305,7 @@ def main():
                             image_data,
                             f"Stencil_erased_{int(time.time())}.png",
                             "image/png",
-                            key="erase_download",
-                            use_container_width=True
+                            key="erase_download"
                         )
                 else:
                     st.info("👆 Draw on the image above and click 'Erase Selected Area' to remove elements.")
@@ -1330,7 +1328,7 @@ def main():
             with col1:
                 st.markdown("**🖼️ Original Image**")
                 original_img = Image.open(uploaded_file)
-                st.image(original_img, use_container_width=True)
+                st.image(original_img, use_column_width=True)
                 
                 st.markdown("---")
                 st.markdown("**🎨 Filter Options**")
@@ -1349,7 +1347,7 @@ def main():
                     saturation = st.slider("🎨 Saturation", 0.0, 2.0, 1.0, 0.1)
                     sharpness = st.slider("🔪 Sharpness", 0.0, 2.0, 1.0, 0.1)
                 
-                if st.button("✨ Apply Filters", type="primary", use_container_width=True):
+                if st.button("✨ Apply Filters", type="primary"):
                     with st.spinner("🎨 Applying filters..."):
                         try:
                             # Apply selected filter
@@ -1392,15 +1390,14 @@ def main():
             with col2:
                 if 'filtered_image' in st.session_state and st.session_state.filtered_image:
                     st.markdown("**✨ Filtered Result**")
-                    st.image(st.session_state.filtered_image, use_container_width=True)
+                    st.image(st.session_state.filtered_image, use_column_width=True)
                     
                     if 'filtered_image_bytes' in st.session_state:
                         st.download_button(
                             "⬇️ Download Filtered Image",
                             st.session_state.filtered_image_bytes,
                             f"Stencil_filtered_{int(time.time())}.png",
-                            "image/png",
-                            use_container_width=True
+                            "image/png"
                         )
                     
                     # Comparison slider would go here if available
