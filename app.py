@@ -11,7 +11,7 @@ from services import (
     generate_hd_image,
     erase_foreground
 )
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image, ImageFilter, ImageEnhance, ImageDraw, ImageFont
 import io
 import requests
 import json
@@ -404,6 +404,85 @@ def auto_check_images(status_container):
         attempt += 1
     return False
 
+def add_text_to_image(image, text, font_size=50, color="#000000", position="center", x_offset=0, y_offset=0):
+    """
+    Add text overlay to an image.
+    
+    Args:
+        image: PIL Image object
+        text: Text to add to the image
+        font_size: Size of the font (default: 50)
+        color: Color of the text in hex format (default: "#000000")
+        position: Position preset ("center", "top-left", "top-center", "top-right", 
+                  "bottom-left", "bottom-center", "bottom-right", "custom")
+        x_offset: X coordinate offset for custom positioning
+        y_offset: Y coordinate offset for custom positioning
+    
+    Returns:
+        PIL Image object with text overlay
+    """
+    # Create a copy of the image to avoid modifying the original
+    img_copy = image.copy()
+    draw = ImageDraw.Draw(img_copy)
+    
+    # Try to use a nice font, fall back to default if not available
+    try:
+        # Try to load a TrueType font
+        font = ImageFont.truetype("arial.ttf", font_size)
+    except:
+        try:
+            # Try alternative font names
+            font = ImageFont.truetype("Arial.ttf", font_size)
+        except:
+            try:
+                font = ImageFont.truetype("DejaVuSans.ttf", font_size)
+            except:
+                # Fall back to default font
+                font = ImageFont.load_default()
+    
+    # Get text bounding box to calculate size
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+    
+    # Get image dimensions
+    img_width, img_height = img_copy.size
+    
+    # Calculate position based on preset or custom coordinates
+    if position == "center":
+        x = (img_width - text_width) // 2
+        y = (img_height - text_height) // 2
+    elif position == "top-left":
+        x = 20
+        y = 20
+    elif position == "top-center":
+        x = (img_width - text_width) // 2
+        y = 20
+    elif position == "top-right":
+        x = img_width - text_width - 20
+        y = 20
+    elif position == "bottom-left":
+        x = 20
+        y = img_height - text_height - 20
+    elif position == "bottom-center":
+        x = (img_width - text_width) // 2
+        y = img_height - text_height - 20
+    elif position == "bottom-right":
+        x = img_width - text_width - 20
+        y = img_height - text_height - 20
+    elif position == "custom":
+        x = x_offset
+        y = y_offset
+    else:
+        # Default to center
+        x = (img_width - text_width) // 2
+        y = (img_height - text_height) // 2
+    
+    # Draw the text
+    draw.text((x, y), text, fill=color, font=font)
+    
+    return img_copy
+
 def main():
     # Custom header
     st.markdown("""
@@ -484,7 +563,8 @@ def main():
         "🖼️ Lifestyle Shot",
         "✨ Generative Fill",
         "🧹 Erase Elements",
-        "🎭 Image Filters"
+        "🎭 Image Filters",
+        "📝 Text Overlay"
     ])
     
     # Generate Images Tab
@@ -1377,7 +1457,6 @@ def main():
                                 img_byte_arr = img_byte_arr.getvalue()
                                 
                                 # Store as base64 for display
-                                import base64
                                 b64_img = base64.b64encode(img_byte_arr).decode()
                                 st.session_state.filtered_image = f"data:image/png;base64,{b64_img}"
                                 st.session_state.filtered_image_bytes = img_byte_arr
@@ -1451,6 +1530,189 @@ def main():
                 <p>See changes in real-time</p>
                 </div>
                 """, unsafe_allow_html=True)
+        
+    # Text Overlay Tab
+    with tabs[5]:
+            st.markdown("### 📝 Text Overlay")
+            st.markdown("Add custom text to your images with full control over appearance and positioning.")
+            
+            uploaded_file = st.file_uploader(
+                "📤 Upload Image", 
+                type=["png", "jpg", "jpeg"], 
+                key="text_overlay_upload",
+                help="Upload an image to add text overlay"
+            )
+            
+            if uploaded_file:
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("**🖼️ Original Image**")
+                    original_img = Image.open(uploaded_file)
+                    st.image(original_img, use_column_width=True)
+                    
+                    st.markdown("---")
+                    st.markdown("**✏️ Text Settings**")
+                    
+                    # Text input
+                    text_input = st.text_area(
+                        "Enter your text",
+                        placeholder="Type your text here...",
+                        help="Enter the text you want to add to the image"
+                    )
+                    
+                    col_a, col_b = st.columns(2)
+                    
+                    with col_a:
+                        # Font size
+                        font_size = st.slider(
+                            "📏 Font Size",
+                            min_value=10,
+                            max_value=200,
+                            value=50,
+                            step=5,
+                            help="Adjust the size of the text"
+                        )
+                        
+                        # Text color
+                        text_color = st.color_picker(
+                            "🎨 Text Color",
+                            "#000000",
+                            help="Choose the color of your text"
+                        )
+                    
+                    with col_b:
+                        # Position preset
+                        position = st.selectbox(
+                            "📍 Position",
+                            [
+                                "Center",
+                                "Top Left",
+                                "Top Center",
+                                "Top Right",
+                                "Bottom Left",
+                                "Bottom Center",
+                                "Bottom Right",
+                                "Custom"
+                            ],
+                            help="Choose where to place the text"
+                        )
+                        
+                        # Custom position controls (only shown if Custom is selected)
+                        if position == "Custom":
+                            x_offset = st.number_input(
+                                "X Position",
+                                min_value=0,
+                                max_value=original_img.width,
+                                value=original_img.width // 2,
+                                help="Horizontal position (pixels from left)"
+                            )
+                            y_offset = st.number_input(
+                                "Y Position",
+                                min_value=0,
+                                max_value=original_img.height,
+                                value=original_img.height // 2,
+                                help="Vertical position (pixels from top)"
+                            )
+                        else:
+                            x_offset = 0
+                            y_offset = 0
+                    
+                    # Apply button
+                    if st.button("✨ Add Text to Image", type="primary"):
+                        if not text_input:
+                            st.warning("⚠️ Please enter some text first!")
+                        else:
+                            with st.spinner("Adding text to image..."):
+                                try:
+                                    # Convert position to lowercase with hyphens
+                                    position_key = position.lower().replace(" ", "-")
+                                    
+                                    # Add text to image
+                                    result_img = add_text_to_image(
+                                        original_img,
+                                        text_input,
+                                        font_size=font_size,
+                                        color=text_color,
+                                        position=position_key,
+                                        x_offset=x_offset,
+                                        y_offset=y_offset
+                                    )
+                                    
+                                    # Store in session state
+                                    img_byte_arr = io.BytesIO()
+                                    result_img.save(img_byte_arr, format='PNG')
+                                    img_byte_arr = img_byte_arr.getvalue()
+                                    
+                                    # Store as base64 for display
+                                    b64_img = base64.b64encode(img_byte_arr).decode()
+                                    st.session_state.text_overlay_result = f"data:image/png;base64,{b64_img}"
+                                    st.session_state.text_overlay_bytes = img_byte_arr
+                                    
+                                    st.success("✅ Text added successfully!")
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"❌ Error adding text: {str(e)}")
+                
+                with col2:
+                    if 'text_overlay_result' in st.session_state and st.session_state.text_overlay_result:
+                        st.markdown("**✨ Result with Text**")
+                        st.image(st.session_state.text_overlay_result, use_column_width=True)
+                        
+                        if 'text_overlay_bytes' in st.session_state:
+                            st.download_button(
+                                "⬇️ Download Image with Text",
+                                st.session_state.text_overlay_bytes,
+                                f"Stencil_text_overlay_{int(time.time())}.png",
+                                "image/png"
+                            )
+                        
+                        # Reset button
+                        if st.button("🔄 Reset"):
+                            del st.session_state.text_overlay_result
+                            del st.session_state.text_overlay_bytes
+                            st.rerun()
+                    else:
+                        st.info("👈 Configure text settings and click 'Add Text to Image' to see the result")
+                        
+                        # Feature info
+                        st.markdown("**💡 Tips**")
+                        st.markdown("""
+                        <div class="info-box">
+                        • Use larger font sizes for better visibility<br>
+                        • Choose contrasting colors for readability<br>
+                        • Try different positions to find the best placement<br>
+                        • Custom position gives you pixel-perfect control
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.info("📤 Upload an image to start adding text overlays")
+                
+                # Feature showcase
+                col_f1, col_f2, col_f3 = st.columns(3)
+                with col_f1:
+                    st.markdown("""
+                    <div class="feature-card">
+                    <h4>✏️ Custom Text</h4>
+                    <p>Add any text you want to your images</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_f2:
+                    st.markdown("""
+                    <div class="feature-card">
+                    <h4>🎨 Full Control</h4>
+                    <p>Customize size, color, and position</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_f3:
+                    st.markdown("""
+                    <div class="feature-card">
+                    <h4>⚡ Instant Preview</h4>
+                    <p>See results immediately</p>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
-    main() 
+    main()
