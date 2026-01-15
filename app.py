@@ -9,7 +9,18 @@ from services import (
     enhance_prompt,
     generative_fill,
     generate_hd_image,
-    erase_foreground
+    erase_foreground,
+    # Auth and project management
+    is_authenticated
+)
+from components.auth_ui import (
+    render_auth_page, render_user_sidebar, 
+    render_settings_modal, check_authentication
+)
+from components.project_ui import (
+    render_project_sidebar, render_save_dialog, 
+    render_load_dialog, render_cloud_storage_section,
+    render_cloud_files_modal
 )
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw, ImageFont
 import io
@@ -296,6 +307,26 @@ def initialize_session_state():
         st.session_state.image_history = []
     if 'generation_count' not in st.session_state:
         st.session_state.generation_count = 0
+    # Auth state
+    if 'is_authenticated' not in st.session_state:
+        st.session_state.is_authenticated = False
+    if 'user' not in st.session_state:
+        st.session_state.user = None
+    if 'guest_mode' not in st.session_state:
+        st.session_state.guest_mode = False
+    # Project state
+    if 'current_project_id' not in st.session_state:
+        st.session_state.current_project_id = None
+    if 'current_project_name' not in st.session_state:
+        st.session_state.current_project_name = None
+    if 'show_save_dialog' not in st.session_state:
+        st.session_state.show_save_dialog = False
+    if 'show_load_dialog' not in st.session_state:
+        st.session_state.show_load_dialog = False
+    if 'show_settings' not in st.session_state:
+        st.session_state.show_settings = False
+    if 'show_cloud_files' not in st.session_state:
+        st.session_state.show_cloud_files = False
 
 def download_image(url):
     """Download image from URL and return as bytes."""
@@ -484,6 +515,13 @@ def add_text_to_image(image, text, font_size=50, color="#000000", position="cent
     return img_copy
 
 def main():
+    initialize_session_state()
+    
+    # Check if user is authenticated
+    if not check_authentication():
+        render_auth_page()
+        return
+    
     # Custom header
     st.markdown("""
     <div class="main-header">
@@ -492,15 +530,27 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    initialize_session_state()
+    # Render dialogs if open
+    if st.session_state.get('show_save_dialog'):
+        render_save_dialog()
+    if st.session_state.get('show_load_dialog'):
+        render_load_dialog()
+    if st.session_state.get('show_cloud_files'):
+        render_cloud_files_modal()
+    
+    # Render settings modal if open
+    render_settings_modal()
     
     # Enhanced Sidebar
     with st.sidebar:
+        # User info section (login status, settings, logout)
+        render_user_sidebar()
+        
         st.markdown("### ⚙️ Settings")
         
         # API Key input with validation
         api_key = st.text_input(
-            "🔑 API Key:", 
+            "🔑 Bria API Key:", 
             value=st.session_state.api_key if st.session_state.api_key else "", 
             type="password",
             help="Enter your Bria API key to access all features"
@@ -510,6 +560,12 @@ def main():
             st.success("✅ API Key connected")
         else:
             st.warning("⚠️ Please enter your API key")
+        
+        # Project management (only for authenticated users)
+        render_project_sidebar()
+        
+        # Cloud storage section
+        render_cloud_storage_section()
         
         st.markdown("---")
         
@@ -544,8 +600,19 @@ def main():
             st.success("History cleared!")
         
         if st.button("🗑️ Reset Session"):
+            # Keep auth state
+            auth_state = {
+                'is_authenticated': st.session_state.get('is_authenticated'),
+                'user': st.session_state.get('user'),
+                'supabase_session': st.session_state.get('supabase_session'),
+                'guest_mode': st.session_state.get('guest_mode')
+            }
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
+            # Restore auth state
+            for key, value in auth_state.items():
+                if value is not None:
+                    st.session_state[key] = value
             st.rerun()
         
         st.markdown("---")
