@@ -22,15 +22,12 @@ except ImportError as e:
     Client = None
 
 def get_supabase_client():
-    """Get or create Supabase client."""
+    """Get or create Supabase client with authenticated session."""
     global _supabase_client
     
     if not SUPABASE_AVAILABLE:
         return None
     
-    if _supabase_client is not None:
-        return _supabase_client
-        
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_KEY")
     
@@ -38,7 +35,22 @@ def get_supabase_client():
         return None
     
     try:
-        _supabase_client = create_client(url, key)
+        # Always create client
+        if _supabase_client is None:
+            _supabase_client = create_client(url, key)
+        
+        # If user is authenticated, set the session
+        if st.session_state.get("supabase_session"):
+            session = st.session_state["supabase_session"]
+            access_token = session.get("access_token")
+            refresh_token = session.get("refresh_token")
+            if access_token and refresh_token:
+                try:
+                    # Set the session on the client so RLS works
+                    _supabase_client.auth.set_session(access_token, refresh_token)
+                except Exception as e:
+                    print(f"Error setting session: {e}")
+        
         return _supabase_client
     except Exception:
         return None
@@ -275,3 +287,103 @@ def auto_save_project() -> None:
     if current_project_id:
         state = get_project_state()
         update_project(current_project_id, data=state)
+
+
+def get_all_project_images() -> dict:
+    """
+    Get all images from all projects for the current user.
+    Extracts images from image_history and generated_images fields.
+    
+    Returns:
+        dict with 'success', 'message', and 'images' list
+    """
+    try:
+        if not st.session_state.get("user"):
+            return {"success": False, "message": "Please login to view images.", "images": []}
+        
+        client = get_supabase_client()
+        if not client:
+            return {"success": False, "message": "Database not configured.", "images": []}
+        
+        user_id = st.session_state["user"]["id"]
+        
+        # Get all projects with their data
+        response = client.table("projects").select(
+            "id, name, data, created_at"
+        ).eq("user_id", user_id).execute()
+        
+        images = []
+        
+        for project in response.data or []:
+            project_name = project.get("name", "Unknown")
+            project_id = project.get("id")
+            created_at = project.get("created_at", "")
+            
+            # Parse the data field
+            data = project.get("data")
+            if isinstance(data, str):
+                try:
+                    data = json.loads(data)
+                except:
+                    continue
+            
+            if not isinstance(data, dict):
+                continue
+            
+            # Extract from image_history
+            image_history = data.get("image_history", [])
+            for item in image_history:
+                if isinstance(item, dict):
+                    url = item.get("url")
+                    if url:
+                        images.append({
+                            "name": f"{project_name} - {item.get('type', 'image')}",
+                            "url": url,
+                            "path": f"project/{project_id}",
+                            "created_at": item.get("timestamp", created_at),
+                            "source": "project",
+                            "project_name": project_name
+                        })
+                elif isinstance(item, str) and item.startswith("http"):
+                    images.append({
+                        "name": f"{project_name} - image",
+                        "url": item,
+                        "path": f"project/{project_id}",
+                        "created_at": created_at,
+                        "source": "project",
+                        "project_name": project_name
+                    })
+            
+            # Extract from generated_images
+            generated_images = data.get("generated_images", [])
+            for idx, url in enumerate(generated_images):
+                if isinstance(url, str) and url.startswith("http"):
+                    images.append({
+                        "name": f"{project_name} - generated_{idx+1}",
+                        "url": url,
+                        "path": f"project/{project_id}",
+                        "created_at": created_at,
+                        "source": "project",
+                        "project_name": project_name
+                    })
+            
+            # Extract current_image_url if exists
+            current_url = data.get("current_image_url")
+            if current_url and isinstance(current_url, str) and current_url.startswith("http"):
+                images.append({
+                    "name": f"{project_name} - current",
+                    "url": current_url,
+                    "path": f"project/{project_id}",
+                    "created_at": created_at,
+                    "source": "project",
+                    "project_name": project_name
+                })
+        
+        return {
+            "success": True,
+            "message": f"Found {len(images)} images from projects.",
+            "images": images
+        }
+        
+    except Exception as e:
+        return {"success": False, "message": f"Error fetching project images: {str(e)}", "images": []}

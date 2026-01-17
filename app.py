@@ -22,6 +22,9 @@ from components.project_ui import (
     render_load_dialog, render_cloud_storage_section,
     render_cloud_files_modal
 )
+from services.storage_service import (
+    upload_image, list_user_files, download_image_from_url, delete_file
+)
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw, ImageFont
 import io
 import requests
@@ -660,6 +663,11 @@ def initialize_session_state():
         st.session_state.show_settings = False
     if 'show_cloud_files' not in st.session_state:
         st.session_state.show_cloud_files = False
+    # Gallery state - auto-load images on login
+    if 'gallery_images' not in st.session_state:
+        st.session_state.gallery_images = []
+    if 'gallery_loaded' not in st.session_state:
+        st.session_state.gallery_loaded = False
 
 def download_image(url):
     """Download image from URL and return as bytes."""
@@ -726,6 +734,115 @@ def save_to_history(image_url, operation_type, prompt=""):
         st.session_state.generation_count += 1
     except Exception as e:
         print(f"Error saving to history: {str(e)}")
+
+def save_image_to_database(image_url_or_bytes, filename=None, show_success=True):
+    """
+    Save an image to the database/cloud storage.
+    
+    Args:
+        image_url_or_bytes: Either a URL string or bytes of the image
+        filename: Optional filename for the saved image
+        show_success: Whether to show success message
+    
+    Returns:
+        dict with 'success' and 'message'
+    """
+    try:
+        if not st.session_state.get("user"):
+            return {"success": False, "message": "Please login to save images."}
+        
+        # Get image bytes
+        if isinstance(image_url_or_bytes, str):
+            # It's a URL, download it
+            image_bytes = download_image(image_url_or_bytes)
+            if not image_bytes:
+                return {"success": False, "message": "Could not download image."}
+        else:
+            image_bytes = image_url_or_bytes
+        
+        # Generate filename if not provided
+        if not filename:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"stencil_{timestamp}.png"
+        
+        # Upload to storage
+        result = upload_image(image_bytes, filename, "images")
+        
+        if result["success"]:
+            # Reload gallery to include new image
+            st.session_state.gallery_loaded = False
+            if show_success:
+                st.success("✅ Image saved to your gallery!")
+            return result
+        else:
+            if show_success:
+                st.error(f"❌ {result['message']}")
+            return result
+            
+    except Exception as e:
+        error_msg = f"Error saving image: {str(e)}"
+        if show_success:
+            st.error(error_msg)
+        return {"success": False, "message": error_msg}
+
+def load_gallery_images():
+    """Load user's saved images from database/cloud storage AND from projects."""
+    try:
+        if not st.session_state.get("user"):
+            st.session_state.gallery_images = []
+            st.session_state.gallery_loaded = True
+            st.session_state.gallery_error = None
+            return
+        
+        all_images = []
+        errors = []
+        
+        # Try to list files from the storage bucket
+        storage_result = list_user_files("images")
+        if storage_result["success"]:
+            all_images.extend(storage_result["files"])
+        else:
+            errors.append(f"Storage: {storage_result.get('message', 'Unknown error')}")
+        
+        # Also get images from projects table
+        from services.project_service import get_all_project_images
+        project_result = get_all_project_images()
+        if project_result["success"]:
+            all_images.extend(project_result["images"])
+        else:
+            errors.append(f"Projects: {project_result.get('message', 'Unknown error')}")
+        
+        # Remove duplicates based on URL
+        seen_urls = set()
+        unique_images = []
+        for img in all_images:
+            url = img.get("url")
+            if url and url not in seen_urls:
+                seen_urls.add(url)
+                unique_images.append(img)
+        
+        st.session_state.gallery_images = unique_images
+        st.session_state.gallery_error = "; ".join(errors) if errors and not unique_images else None
+        st.session_state.gallery_loaded = True
+        
+    except Exception as e:
+        print(f"Error loading gallery: {str(e)}")
+        st.session_state.gallery_images = []
+        st.session_state.gallery_loaded = True
+        st.session_state.gallery_error = str(e)
+
+def render_save_to_db_button(image_url_or_bytes, key_suffix="", button_text="💾 Save to Gallery"):
+    """Render a save to database button for feature tabs."""
+    if not st.session_state.get("user"):
+        st.info("🔐 Login to save images to your gallery")
+        return False
+    
+    if st.button(button_text, key=f"save_to_db_{key_suffix}", use_container_width=True):
+        with st.spinner("Saving to gallery..."):
+            result = save_image_to_database(image_url_or_bytes)
+            return result["success"]
+    return False
+
 
 def check_generated_images():
     """Check if pending images are ready and update the display."""
@@ -957,6 +1074,10 @@ def main():
             "that helps you create stunning visuals for your products and marketing needs."
         )
 
+    # Auto-load gallery images when user is logged in
+    if st.session_state.get("user") and not st.session_state.get("gallery_loaded"):
+        load_gallery_images()
+
     # Main tabs
     tabs = st.tabs([
         "🎨 Generate Image",
@@ -964,7 +1085,8 @@ def main():
         "✨ Generative Fill",
         "🧹 Erase Elements",
         "🎭 Image Filters",
-        "📝 Text Overlay"
+        "📝 Text Overlay",
+        "🖼️ My Gallery"
     ])
     
     # Generate Images Tab
@@ -1141,6 +1263,8 @@ def main():
                         f"Stencil_generated_{int(time.time())}.png",
                         "image/png"
                     )
+                    # Save to gallery button
+                    render_save_to_db_button(st.session_state.edited_image, "generate")
     
     # Product Photography Tab
     with tabs[1]:
@@ -1534,6 +1658,8 @@ def main():
                             "edited_product.png",
                             "image/png"
                         )
+                        # Save to gallery button
+                        render_save_to_db_button(st.session_state.edited_image, "lifestyle")
                 elif st.session_state.pending_urls:
                     st.info("🔄 Images are being generated. Click the refresh button above to check if they're ready.")
                 else:
@@ -1692,6 +1818,8 @@ def main():
                             "generated_fill.png",
                             "image/png"
                         )
+                        # Save to gallery button
+                        render_save_to_db_button(st.session_state.edited_image, "genfill")
                 elif st.session_state.pending_urls:
                     st.info("Generation in progress. Click the refresh button above to check status.")
 
@@ -1787,6 +1915,8 @@ def main():
                             "image/png",
                             key="erase_download"
                         )
+                        # Save to gallery button
+                        render_save_to_db_button(st.session_state.edited_image, "erase")
                 else:
                     st.info("👆 Draw on the image above and click 'Erase Selected Area' to remove elements.")
     
@@ -1878,6 +2008,8 @@ def main():
                             f"Stencil_filtered_{int(time.time())}.png",
                             "image/png"
                         )
+                        # Save to gallery button
+                        render_save_to_db_button(st.session_state.filtered_image_bytes, "filter")
                     
                     # Comparison slider would go here if available
                     if st.button("🔄 Reset Filters"):
@@ -2066,6 +2198,8 @@ def main():
                                 f"Stencil_text_overlay_{int(time.time())}.png",
                                 "image/png"
                             )
+                            # Save to gallery button
+                            render_save_to_db_button(st.session_state.text_overlay_bytes, "text_overlay")
                         
                         # Reset button
                         if st.button("🔄 Reset"):
@@ -2113,6 +2247,154 @@ def main():
                     <p>See results immediately</p>
                     </div>
                     """, unsafe_allow_html=True)
+
+    # My Gallery Tab
+    with tabs[6]:
+        st.markdown("### 🖼️ My Gallery")
+        st.markdown("View and manage all your saved images from the database.")
+        
+        # Check if user is logged in
+        if not st.session_state.get("user"):
+            st.warning("🔐 Please login to view your saved images.")
+            st.info("Your gallery will automatically load once you sign in.")
+        else:
+            # Refresh button
+            col_refresh, col_count, col_status = st.columns([1, 2, 1])
+            with col_refresh:
+                if st.button("🔄 Refresh Gallery", use_container_width=True):
+                    st.session_state.gallery_loaded = False
+                    load_gallery_images()
+                    st.success("✅ Gallery refreshed!")
+                    st.rerun()
+            
+            with col_count:
+                image_count = len(st.session_state.get("gallery_images", []))
+                st.markdown(f"**📊 Total Images:** {image_count}")
+            
+            with col_status:
+                if st.session_state.get("gallery_loaded"):
+                    st.markdown("✅ Loaded")
+                else:
+                    st.markdown("⏳ Loading...")
+            
+            st.markdown("---")
+            
+            # Get gallery images (now includes both storage and project images)
+            gallery_images = st.session_state.get("gallery_images", [])
+            
+            # If gallery not loaded or empty, try loading again
+            if not gallery_images and st.session_state.get("gallery_loaded"):
+                load_gallery_images()
+                gallery_images = st.session_state.get("gallery_images", [])
+            
+            # Show info about image sources
+            with st.expander("ℹ️ Image Sources", expanded=False):
+                st.info("""
+                **Gallery shows images from:**
+                - 📁 **Cloud Storage** - Images saved with "Save to Gallery" button
+                - 📂 **Projects** - Images stored in your saved projects
+                
+                *Tip: Use the "Save to Gallery" button when generating images to save them to cloud storage for permanent access.*
+                """)
+            
+            # Show any stored error
+            if st.session_state.get("gallery_error"):
+                with st.expander("⚠️ Info", expanded=False):
+                    st.warning(f"Note: {st.session_state.gallery_error}")
+            
+            if not gallery_images:
+                st.info("📭 Your gallery is empty. Start by generating or editing images and saving them to your gallery!")
+                
+                # Feature cards
+                col_f1, col_f2, col_f3 = st.columns(3)
+                with col_f1:
+                    st.markdown("""
+                    <div class="feature-card">
+                    <h4>🎨 Generate</h4>
+                    <p>Create AI images and save your favorites</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_f2:
+                    st.markdown("""
+                    <div class="feature-card">
+                    <h4>✨ Edit</h4>
+                    <p>Apply filters and effects, then save</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_f3:
+                    st.markdown("""
+                    <div class="feature-card">
+                    <h4>☁️ Access Anywhere</h4>
+                    <p>Your images are stored in the cloud</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                # Display in grid - 4 columns
+                cols_per_row = 4
+                rows = [gallery_images[i:i + cols_per_row] for i in range(0, len(gallery_images), cols_per_row)]
+                
+                for row_idx, row in enumerate(rows):
+                    cols = st.columns(cols_per_row)
+                    for col_idx, file in enumerate(row):
+                        with cols[col_idx]:
+                            # Determine source type
+                            is_project_image = file.get("source") == "project"
+                            source_icon = "📂" if is_project_image else "☁️"
+                            source_type = file.get("project_name", "Project") if is_project_image else "Storage"
+                            
+                            # Image container with styling
+                            border_color = "rgba(139, 92, 246, 0.3)" if is_project_image else "rgba(99, 102, 241, 0.2)"
+                            st.markdown(f"""
+                            <div style="background: rgba(30, 41, 59, 0.6); padding: 0.5rem; 
+                                        border-radius: 12px; border: 1px solid {border_color};
+                                        margin-bottom: 1rem;">
+                            """, unsafe_allow_html=True)
+                            
+                            # Display image
+                            st.image(file["url"], use_column_width=True)
+                            
+                            # Filename and source (truncated)
+                            filename = file.get("name", "image")
+                            display_name = filename[:15] + "..." if len(filename) > 15 else filename
+                            st.caption(f"{source_icon} {display_name}")
+                            
+                            # Action buttons
+                            if is_project_image:
+                                # For project images, only show Use button
+                                if st.button("📌 Use", key=f"use_gallery_{row_idx}_{col_idx}", use_container_width=True):
+                                    st.session_state.edited_image = file["url"]
+                                    st.session_state.current_image_url = file["url"]
+                                    st.success(f"✅ Image loaded!")
+                                    st.rerun()
+                            else:
+                                # For storage images, show Use and Delete
+                                btn_col1, btn_col2 = st.columns(2)
+                                
+                                with btn_col1:
+                                    if st.button("📌 Use", key=f"use_gallery_{row_idx}_{col_idx}", use_container_width=True):
+                                        st.session_state.edited_image = file["url"]
+                                        st.session_state.current_image_url = file["url"]
+                                        st.success(f"✅ Image loaded!")
+                                        st.rerun()
+                                
+                                with btn_col2:
+                                    if st.button("🗑️", key=f"del_gallery_{row_idx}_{col_idx}", use_container_width=True, help="Delete image"):
+                                        result = delete_file(file["path"])
+                                        if result["success"]:
+                                            st.session_state.gallery_loaded = False
+                                            st.success("✅ Deleted!")
+                                            st.rerun()
+                                        else:
+                                            st.error(result["message"])
+                            
+                            st.markdown("</div>", unsafe_allow_html=True)
+                
+                # Bulk actions at the bottom
+                st.markdown("---")
+                st.markdown("**💡 Tip:** 📂 = From project, ☁️ = From cloud storage. Click 'Use' to load an image into the editor.")
+
 
 if __name__ == "__main__":
     main()

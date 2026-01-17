@@ -26,15 +26,12 @@ except ImportError as e:
     Client = None
 
 def get_supabase_client():
-    """Get or create Supabase client."""
+    """Get or create Supabase client with authenticated session."""
     global _supabase_client
     
     if not SUPABASE_AVAILABLE:
         return None
     
-    if _supabase_client is not None:
-        return _supabase_client
-        
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_KEY")
     
@@ -42,7 +39,22 @@ def get_supabase_client():
         return None
     
     try:
-        _supabase_client = create_client(url, key)
+        # Always create client
+        if _supabase_client is None:
+            _supabase_client = create_client(url, key)
+        
+        # If user is authenticated, set the session
+        if st.session_state.get("supabase_session"):
+            session = st.session_state["supabase_session"]
+            access_token = session.get("access_token")
+            refresh_token = session.get("refresh_token")
+            if access_token and refresh_token:
+                try:
+                    # Set the session on the client so RLS works
+                    _supabase_client.auth.set_session(access_token, refresh_token)
+                except Exception as e:
+                    print(f"Error setting session: {e}")
+        
         return _supabase_client
     except Exception:
         return None
@@ -179,24 +191,71 @@ def list_user_files(folder: str = None) -> dict:
         
         client = get_supabase_client()
         if not client:
-            return {"success": False, "message": "Storage not configured.", "files": []}
+            return {"success": False, "message": "Storage not configured. Please check Supabase credentials.", "files": []}
         
         user_id = st.session_state["user"]["id"]
         path = f"{user_id}/{folder}" if folder else user_id
         
-        response = client.storage.from_(BUCKET_NAME).list(path)
+        # Debug: List bucket root to see all folders
+        try:
+            bucket_root = client.storage.from_(BUCKET_NAME).list("")
+            print(f"[DEBUG] Bucket root contents: {[item.get('name') for item in bucket_root]}")
+        except Exception as bucket_error:
+            print(f"[DEBUG] Error listing bucket root: {bucket_error}")
+        
+        # Debug: List user's root folder to see all subfolders
+        try:
+            user_root = client.storage.from_(BUCKET_NAME).list(user_id)
+            print(f"[DEBUG] User root '{user_id}' contents: {[item.get('name') for item in user_root]}")
+            for item in user_root:
+                print(f"[DEBUG] User root item: {item}")
+        except Exception as root_error:
+            print(f"[DEBUG] Error listing user root: {root_error}")
+        
+        # Try listing the target path
+        try:
+            response = client.storage.from_(BUCKET_NAME).list(path)
+            print(f"[DEBUG] Target path '{path}' response: {response}")
+        except Exception as list_error:
+            return {"success": False, "message": f"Error accessing storage: {str(list_error)}", "files": []}
         
         files = []
+        print(f"[DEBUG] list_user_files: Checking path '{path}', found {len(response)} items")
+        
         for item in response:
-            if item.get("name"):
-                file_path = f"{path}/{item['name']}"
+            item_name = item.get("name", "")
+            
+            # Skip if no name
+            if not item_name:
+                print(f"[DEBUG] Skipping item with no name: {item}")
+                continue
+            
+            # Skip hidden placeholder files (like .emptyFolderPlaceholder)
+            if item_name.startswith("."):
+                print(f"[DEBUG] Skipping hidden file: {item_name}")
+                continue
+            
+            # Check if it's an image file by extension
+            lower_name = item_name.lower()
+            if not any(lower_name.endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp']):
+                print(f"[DEBUG] Skipping non-image file: {item_name}")
+                continue
+            
+            print(f"[DEBUG] Found valid image: {item_name} (id={item.get('id')}, metadata={item.get('metadata')})")
+            
+            file_path = f"{path}/{item_name}"
+            try:
                 public_url = client.storage.from_(BUCKET_NAME).get_public_url(file_path)
+            except:
+                public_url = None
+            
+            if public_url:
                 files.append({
-                    "name": item["name"],
+                    "name": item_name,
                     "path": file_path,
                     "url": public_url,
                     "created_at": item.get("created_at"),
-                    "size": item.get("metadata", {}).get("size", 0)
+                    "size": item.get("metadata", {}).get("size", 0) if item.get("metadata") else 0
                 })
         
         return {
