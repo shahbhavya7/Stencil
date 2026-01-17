@@ -40,246 +40,579 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
+# Custom CSS for sleek, modern styling with enhanced UX
 st.markdown("""
 <style>
-    /* Main theme colors */
+    /* ===== IMPORTS & VARIABLES ===== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
     :root {
-        --primary-color: #6366f1;
-        --secondary-color: #8b5cf6;
-        --background-color: #0f172a;
-        --card-background: #1e293b;
+        --primary: #6366f1;
+        --primary-light: #818cf8;
+        --primary-dark: #4f46e5;
+        --secondary: #8b5cf6;
+        --accent: #06b6d4;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --bg-dark: #0a0f1a;
+        --bg-card: rgba(15, 23, 42, 0.8);
+        --bg-glass: rgba(30, 41, 59, 0.6);
+        --border-color: rgba(99, 102, 241, 0.2);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+        --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.25);
+        --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.15);
+        --transition-fast: 0.15s ease;
+        --transition-normal: 0.25s ease;
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+    }
+
+    /* ===== GLOBAL STYLES ===== */
+    * {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     
-    /* Header styling */
+    .stApp {
+        background: linear-gradient(135deg, #0a0f1a 0%, #1e1b4b 50%, #0a0f1a 100%);
+        background-attachment: fixed;
+    }
+    
+    /* Animated background gradient */
+    .stApp::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(ellipse at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    /* ===== HEADER ===== */
     .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 1.5rem 2rem;
+        border-radius: var(--radius-lg);
         color: white;
         text-align: center;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-md), var(--shadow-glow);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: headerShine 8s ease-in-out infinite;
+    }
+    
+    @keyframes headerShine {
+        0%, 100% { transform: translateX(-30%) translateY(-30%); }
+        50% { transform: translateX(30%) translateY(30%); }
     }
     
     .main-header h1 {
-        font-size: 3rem;
-        font-weight: bold;
+        font-size: 2.25rem;
+        font-weight: 700;
         margin: 0;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        letter-spacing: -0.02em;
+        position: relative;
     }
     
     .main-header p {
-        font-size: 1.2rem;
+        font-size: 1rem;
         margin: 0.5rem 0 0 0;
         opacity: 0.9;
+        font-weight: 400;
+        position: relative;
+    }
+
+    /* ===== APP CONTAINER ===== */
+    [data-testid="stAppViewContainer"], 
+    [data-testid="stHeader"],
+    header[data-testid="stHeader"],
+    .stApp > header {
+        background: transparent !important;
     }
     
-    /* Card styling */
-    .stApp {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    }
-    
-    /* Main content area background */
     .main .block-container {
         background: transparent;
-        padding-top: 2rem;
+        padding: 1rem 2rem 2rem 2rem;
+        max-width: 1400px;
     }
-    
-    /* Top header area */
-    header[data-testid="stHeader"] {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    }
-    
-    /* Toolbar area */
-    .stApp > header {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    }
-    
-    /* Ensure all backgrounds match */
-    [data-testid="stAppViewContainer"] {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    }
-    
-    [data-testid="stHeader"] {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    }
-    
-    /* Button styling */
-    .stButton>button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    /* ===== BUTTONS ===== */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 0.5rem 2rem;
+        border-radius: var(--radius-sm);
+        padding: 0.6rem 1.5rem;
         font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        font-size: 0.875rem;
+        letter-spacing: 0.01em;
+        transition: all var(--transition-normal);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        overflow: hidden;
     }
     
-    .stButton>button:hover {
+    .stButton > button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .stButton > button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
     }
     
-    /* Tab styling */
+    .stButton > button:hover::before {
+        left: 100%;
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0);
+    }
+    
+    /* Primary button variant */
+    .stButton > button[kind="primary"],
+    button[data-testid="baseButton-primary"] {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    /* ===== TABS ===== */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: rgba(30, 41, 59, 0.5);
-        padding: 0.5rem;
-        border-radius: 10px;
+        gap: 4px;
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        padding: 6px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
     }
     
     .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        padding: 0.5rem 1.5rem;
-        background-color: transparent;
-        color: white;
+        border-radius: var(--radius-sm);
+        padding: 0.5rem 1rem;
+        background: transparent;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: all var(--transition-fast);
+        border: none !important;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        color: var(--text-primary);
+        background: rgba(99, 102, 241, 0.1);
     }
     
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+        color: white !important;
+        box-shadow: var(--shadow-sm);
     }
     
-    /* Info boxes */
+    /* Tab highlight line - hide it */
+    .stTabs [data-baseweb="tab-highlight"] {
+        display: none;
+    }
+
+    /* ===== INPUTS ===== */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea,
+    .stSelectbox > div > div > div,
+    .stNumberInput > div > div > input {
+        background: var(--bg-glass) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-primary) !important;
+        font-size: 0.9rem;
+        transition: all var(--transition-fast);
+    }
+    
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+    }
+    
+    .stTextArea > div > div > textarea {
+        min-height: 120px;
+    }
+
+    /* ===== FILE UPLOADER ===== */
+    [data-testid="stFileUploader"] {
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        border: 2px dashed var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        transition: all var(--transition-normal);
+    }
+    
+    [data-testid="stFileUploader"]:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.05);
+    }
+    
+    [data-testid="stFileUploader"] section {
+        padding: 0 !important;
+    }
+
+    /* ===== SLIDERS ===== */
+    .stSlider > div > div > div > div {
+        background: var(--primary) !important;
+    }
+    
+    .stSlider > div > div > div[data-baseweb="slider"] > div:first-child {
+        background: rgba(99, 102, 241, 0.3) !important;
+    }
+
+    /* ===== INFO & ALERT BOXES ===== */
     .info-box {
         background: rgba(99, 102, 241, 0.1);
-        border-left: 4px solid #6366f1;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
+        backdrop-filter: blur(10px);
+        border-left: 3px solid var(--primary);
+        padding: 1rem 1.25rem;
+        border-radius: var(--radius-sm);
+        margin: 0.75rem 0;
+        font-size: 0.9rem;
+        line-height: 1.6;
     }
     
-    /* Success message */
     .success-box {
-        background: rgba(34, 197, 94, 0.1);
-        border-left: 4px solid #22c55e;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
+        background: rgba(16, 185, 129, 0.1);
+        backdrop-filter: blur(10px);
+        border-left: 3px solid var(--success);
+        padding: 1rem 1.25rem;
+        border-radius: var(--radius-sm);
+        margin: 0.75rem 0;
     }
     
-    /* Image preview */
-    .image-container {
-        border-radius: 10px;
+    .stAlert {
+        background: var(--bg-glass) !important;
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius-sm) !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    /* ===== IMAGES ===== */
+    .stImage {
+        border-radius: var(--radius-md);
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        transition: transform 0.3s ease;
+        box-shadow: var(--shadow-md);
+        transition: transform var(--transition-normal), box-shadow var(--transition-normal);
     }
     
-    .image-container:hover {
-        transform: scale(1.02);
+    .stImage:hover {
+        transform: scale(1.01);
+        box-shadow: var(--shadow-glow);
     }
     
-    /* Sidebar styling - Multiple selectors for compatibility */
+    .stImage img {
+        border-radius: var(--radius-md);
+    }
+
+    /* ===== SIDEBAR ===== */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 26, 0.98) 100%);
+        backdrop-filter: blur(20px);
     }
     
     [data-testid="stSidebar"] > div:first-child {
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        background: transparent;
+        padding-top: 1rem;
     }
     
-    /* Sidebar content styling */
     [data-testid="stSidebar"] .element-container {
-        color: white;
+        color: var(--text-primary);
     }
     
-    /* Sidebar headers */
     [data-testid="stSidebar"] h1,
     [data-testid="stSidebar"] h2,
     [data-testid="stSidebar"] h3 {
-        color: white !important;
-    }
-    
-    /* Sidebar text input */
-    [data-testid="stSidebar"] input {
-        background-color: rgba(30, 41, 59, 0.8) !important;
-        color: white !important;
-        border: 1px solid rgba(99, 102, 241, 0.3) !important;
-        border-radius: 8px !important;
-    }
-    
-    /* Sidebar buttons */
-    [data-testid="stSidebar"] .stButton>button {
-        width: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
+        color: var(--text-primary) !important;
         font-weight: 600;
-        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.75rem;
     }
     
-    [data-testid="stSidebar"] .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    [data-testid="stSidebar"] input {
+        background: var(--bg-glass) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: var(--radius-sm) !important;
+        font-size: 0.875rem;
     }
     
-    /* Sidebar metrics */
+    [data-testid="stSidebar"] .stButton > button {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
     [data-testid="stSidebar"] [data-testid="stMetric"] {
-        background: rgba(30, 41, 59, 0.6);
-        padding: 1rem;
-        border-radius: 8px;
-        border: 1px solid rgba(99, 102, 241, 0.3);
+        background: var(--bg-glass);
+        padding: 0.75rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-color);
     }
     
     [data-testid="stSidebar"] [data-testid="stMetricLabel"] {
-        color: rgba(255, 255, 255, 0.7) !important;
+        color: var(--text-secondary) !important;
+        font-size: 0.75rem;
     }
     
     [data-testid="stSidebar"] [data-testid="stMetricValue"] {
-        color: #6366f1 !important;
-        font-weight: bold;
+        color: var(--primary-light) !important;
+        font-weight: 700;
+        font-size: 1.25rem;
     }
     
-    /* Sidebar expander */
     [data-testid="stSidebar"] .streamlit-expanderHeader {
-        background-color: rgba(30, 41, 59, 0.6) !important;
-        border-radius: 8px;
-        border: 1px solid rgba(99, 102, 241, 0.3);
-        color: white !important;
+        background: var(--bg-glass) !important;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary) !important;
+        font-size: 0.85rem;
+        transition: all var(--transition-fast);
     }
     
     [data-testid="stSidebar"] .streamlit-expanderHeader:hover {
-        border-color: #6366f1;
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1) !important;
     }
     
-    /* Sidebar divider */
     [data-testid="stSidebar"] hr {
-        border-color: rgba(99, 102, 241, 0.3);
-        margin: 1.5rem 0;
+        border-color: var(--border-color);
+        margin: 1rem 0;
+        opacity: 0.5;
     }
     
-    /* Sidebar markdown */
     [data-testid="stSidebar"] .stMarkdown {
-        color: white;
+        color: var(--text-primary);
     }
     
-    /* Sidebar info/warning/success boxes */
     [data-testid="stSidebar"] .stAlert {
-        background-color: rgba(30, 41, 59, 0.8);
-        border-radius: 8px;
+        background: var(--bg-glass) !important;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
     }
-    
-    /* Hide default streamlit branding */
+
+    /* ===== HIDE STREAMLIT BRANDING ===== */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    header[data-testid="stHeader"] {visibility: hidden; height: 0;}
     
-    /* Feature cards */
+    /* ===== FEATURE CARDS ===== */
     .feature-card {
-        background: rgba(30, 41, 59, 0.6);
-        padding: 1.5rem;
-        border-radius: 10px;
-        border: 1px solid rgba(99, 102, 241, 0.3);
-        margin: 1rem 0;
-        transition: all 0.3s ease;
+        background: var(--bg-glass);
+        backdrop-filter: blur(10px);
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        margin: 0.5rem 0;
+        transition: all var(--transition-normal);
+        text-align: center;
     }
     
     .feature-card:hover {
-        border-color: #6366f1;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        border-color: var(--primary);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-glow);
+    }
+    
+    .feature-card h4 {
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .feature-card p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* ===== EXPANDERS ===== */
+    .streamlit-expanderHeader {
+        background: var(--bg-glass) !important;
+        border-radius: var(--radius-sm) !important;
+        border: 1px solid var(--border-color) !important;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+    
+    .streamlit-expanderContent {
+        background: var(--bg-glass) !important;
+        border: 1px solid var(--border-color) !important;
+        border-top: none !important;
+        border-radius: 0 0 var(--radius-sm) var(--radius-sm) !important;
+    }
+
+    /* ===== SPINNER/LOADING ===== */
+    .stSpinner > div {
+        border-color: var(--primary) !important;
+    }
+    
+    .stProgress > div > div > div {
+        background: linear-gradient(90deg, var(--primary), var(--secondary)) !important;
+    }
+
+    /* ===== COLOR PICKER ===== */
+    .stColorPicker > div > div {
+        background: var(--bg-glass) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: var(--radius-sm) !important;
+    }
+
+    /* ===== DOWNLOAD BUTTON ===== */
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        border: none;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    
+    .stDownloadButton > button:hover {
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    /* ===== CANVAS ===== */
+    canvas {
+        border-radius: var(--radius-md) !important;
+        box-shadow: var(--shadow-md);
+    }
+
+    /* ===== CHECKBOX ===== */
+    .stCheckbox > label {
+        color: var(--text-primary) !important;
+        font-size: 0.9rem;
+    }
+    
+    .stCheckbox > label > span[data-testid="stCheckbox"] {
+        background: var(--bg-glass) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 4px !important;
+    }
+
+    /* ===== RADIO BUTTONS ===== */
+    .stRadio > label {
+        color: var(--text-primary) !important;
+    }
+    
+    .stRadio > div {
+        background: var(--bg-glass);
+        padding: 0.75rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-color);
+    }
+
+    /* ===== SELECTBOX ===== */
+    [data-baseweb="select"] > div {
+        background: var(--bg-glass) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: var(--radius-sm) !important;
+    }
+
+    /* ===== MARKDOWN & TEXT ===== */
+    .stMarkdown {
+        color: var(--text-primary);
+    }
+    
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
+    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: var(--text-primary) !important;
+        font-weight: 600;
+    }
+    
+    .stMarkdown p, .stMarkdown li {
+        color: var(--text-secondary);
+        line-height: 1.7;
+    }
+
+    /* ===== COLUMNS & LAYOUT ===== */
+    [data-testid="column"] {
+        padding: 0 0.5rem;
+    }
+
+    /* ===== DIVIDER ===== */
+    hr {
+        border-color: var(--border-color);
+        opacity: 0.3;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--bg-dark);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--bg-glass);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .main .block-container {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    /* ===== TOAST/NOTIFICATIONS ===== */
+    [data-testid="stToast"] {
+        background: var(--bg-glass) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md) !important;
+    }
+
+    /* ===== MODAL/DIALOG ===== */
+    [data-testid="stModal"] {
+        background: var(--bg-glass) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -522,11 +855,11 @@ def main():
         render_auth_page()
         return
     
-    # Custom header
+    # Compact header
     st.markdown("""
     <div class="main-header">
         <h1>🎨 Stencil</h1>
-        <p>Professional AI-Powered Image Generation & Editing Platform</p>
+        <p>AI Image Generation & Editing</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -646,9 +979,9 @@ def main():
             prompt = st.text_area(
                 "📝 Describe your vision", 
                 value="",
-                height=350,
+                height=120,
                 key="prompt_input",
-                placeholder="e.g., A sleek modern smartphone on a wooden desk with natural lighting..."
+                placeholder="A sleek modern smartphone on a wooden desk with natural lighting..."
             )
             
             # Store original prompt in session state when it changes
