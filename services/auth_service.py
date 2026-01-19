@@ -44,13 +44,14 @@ def get_supabase_client():
         return None
 
 
-def sign_up(email: str, password: str) -> dict:
+def sign_up(email: str, password: str, name: str = "") -> dict:
     """
     Register a new user.
     
     Args:
         email: User's email address
         password: User's password (min 6 characters)
+        name: User's display name (optional)
     
     Returns:
         dict with 'success', 'message', and optionally 'user' data
@@ -60,10 +61,18 @@ def sign_up(email: str, password: str) -> dict:
         if not client:
             return {"success": False, "message": "Supabase not configured. Check SUPABASE_URL and SUPABASE_KEY in .env"}
         
-        response = client.auth.sign_up({
+        # Include user metadata with name
+        options = {
             "email": email,
-            "password": password
-        })
+            "password": password,
+            "options": {
+                "data": {
+                    "display_name": name if name else email.split("@")[0]
+                }
+            }
+        }
+        
+        response = client.auth.sign_up(options)
         
         if response.user:
             return {
@@ -71,7 +80,8 @@ def sign_up(email: str, password: str) -> dict:
                 "message": "Account created! Please check your email to confirm.",
                 "user": {
                     "id": response.user.id,
-                    "email": response.user.email
+                    "email": response.user.email,
+                    "name": name if name else email.split("@")[0]
                 }
             }
         else:
@@ -106,18 +116,24 @@ def sign_in(email: str, password: str) -> dict:
         })
         
         if response.user and response.session:
+            # Extract display name from user metadata
+            user_metadata = response.user.user_metadata or {}
+            display_name = user_metadata.get("display_name", email.split("@")[0])
+            
             # Store session in Streamlit session state
             st.session_state["supabase_session"] = {
                 "access_token": response.session.access_token,
                 "refresh_token": response.session.refresh_token,
                 "user": {
                     "id": response.user.id,
-                    "email": response.user.email
+                    "email": response.user.email,
+                    "name": display_name
                 }
             }
             st.session_state["user"] = {
                 "id": response.user.id,
-                "email": response.user.email
+                "email": response.user.email,
+                "name": display_name
             }
             st.session_state["is_authenticated"] = True
             
@@ -126,7 +142,8 @@ def sign_in(email: str, password: str) -> dict:
                 "message": "Login successful!",
                 "user": {
                     "id": response.user.id,
-                    "email": response.user.email
+                    "email": response.user.email,
+                    "name": display_name
                 }
             }
         else:

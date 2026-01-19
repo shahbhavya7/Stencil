@@ -101,50 +101,51 @@ st.markdown("""
 
     /* ===== HEADER ===== */
     .main-header {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        padding: 1.5rem 2rem;
-        border-radius: var(--radius-lg);
-        color: white;
+        background: transparent;
+        padding: 0.75rem 0 1.5rem 0;
         text-align: center;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--shadow-md), var(--shadow-glow);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 0.5rem;
         position: relative;
-        overflow: hidden;
-    }
-    
-    .main-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-        animation: headerShine 8s ease-in-out infinite;
-    }
-    
-    @keyframes headerShine {
-        0%, 100% { transform: translateX(-30%) translateY(-30%); }
-        50% { transform: translateX(30%) translateY(30%); }
     }
     
     .main-header h1 {
-        font-size: 2.25rem;
-        font-weight: 700;
+        font-size: 2.5rem;
+        font-weight: 800;
         margin: 0;
-        letter-spacing: -0.02em;
-        position: relative;
+        letter-spacing: -0.03em;
+        color: #ffffff;
+        text-shadow: 
+            0 0 20px rgba(139, 92, 246, 0.8),
+            0 0 40px rgba(99, 102, 241, 0.6),
+            0 0 60px rgba(139, 92, 246, 0.4);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: headerGlow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes headerGlow {
+        0% { text-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 40px rgba(99, 102, 241, 0.6), 0 0 60px rgba(139, 92, 246, 0.4); }
+        100% { text-shadow: 0 0 30px rgba(167, 139, 250, 1), 0 0 60px rgba(139, 92, 246, 0.8), 0 0 80px rgba(99, 102, 241, 0.5); }
     }
     
     .main-header p {
-        font-size: 1rem;
+        font-size: 0.95rem;
         margin: 0.5rem 0 0 0;
-        opacity: 0.9;
-        font-weight: 400;
-        position: relative;
+        color: #a5b4fc;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+    }
+    
+    .main-header::after {
+        content: '';
+        display: block;
+        width: 120px;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        margin: 1rem auto 0 auto;
+        border-radius: 3px;
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
     }
 
     /* ===== APP CONTAINER ===== */
@@ -189,8 +190,9 @@ st.markdown("""
     }
     
     .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45), 0 0 40px rgba(139, 92, 246, 0.2);
+        background: linear-gradient(135deg, var(--primary-light) 0%, #9333ea 100%);
     }
     
     .stButton > button:hover::before {
@@ -198,7 +200,7 @@ st.markdown("""
     }
     
     .stButton > button:active {
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
     
     /* Primary button variant */
@@ -206,6 +208,30 @@ st.markdown("""
     button[data-testid="baseButton-primary"] {
         background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    
+    .stButton > button[kind="primary"]:hover,
+    button[data-testid="baseButton-primary"]:hover {
+        background: linear-gradient(135deg, var(--primary-light) 0%, #9333ea 100%);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5), 0 0 40px rgba(139, 92, 246, 0.25);
+    }
+    
+    /* Secondary button variant */
+    .stButton > button[kind="secondary"],
+    button[data-testid="baseButton-secondary"] {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        box-shadow: none;
+    }
+    
+    .stButton > button[kind="secondary"]:hover,
+    button[data-testid="baseButton-secondary"]:hover {
+        background: rgba(99, 102, 241, 0.15);
+        border-color: var(--primary);
+        color: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
     }
 
     /* ===== TABS ===== */
@@ -617,6 +643,90 @@ st.markdown("""
         border: 1px solid var(--border-color);
         border-radius: var(--radius-lg) !important;
     }
+
+    /* ===== AUTH FORM ENHANCEMENTS ===== */
+    /* Better form submit button styling */
+    .stForm [data-testid="stFormSubmitButton"] > button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+        color: white !important;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-sm);
+        border: none !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+    
+    .stForm [data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-2px) scale(1.01);
+        box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+        background: linear-gradient(135deg, var(--primary-light) 0%, #9333ea 100%) !important;
+    }
+    
+    /* Form inputs with better focus states */
+    .stForm .stTextInput > div > div > input {
+        background: rgba(15, 23, 42, 0.7) !important;
+        border: 1px solid rgba(99, 102, 241, 0.25) !important;
+        border-radius: var(--radius-sm) !important;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        color: var(--text-primary) !important;
+        transition: all 0.2s ease;
+    }
+    
+    .stForm .stTextInput > div > div > input:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        background: rgba(15, 23, 42, 0.9) !important;
+    }
+    
+    .stForm .stTextInput > div > div > input::placeholder {
+        color: rgba(148, 163, 184, 0.6) !important;
+    }
+    
+    /* Enhanced checkbox styling */
+    .stForm .stCheckbox {
+        padding: 0.25rem 0;
+    }
+    
+    .stForm .stCheckbox > label {
+        color: var(--text-secondary) !important;
+        font-size: 0.875rem;
+    }
+    
+    .stForm .stCheckbox > label:hover {
+        color: var(--text-primary) !important;
+    }
+    
+    /* Auth tabs specific styling */
+    .stTabs [data-baseweb="tab"] {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    /* Input labels */
+    .stForm .stTextInput > label {
+        color: var(--text-secondary) !important;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.375rem;
+    }
+    
+    /* Form spacing */
+    .stForm > div {
+        gap: 0.75rem !important;
+    }
+    
+    /* Password visibility toggle */
+    .stForm .stTextInput button {
+        background: transparent !important;
+        border: none !important;
+        color: var(--text-secondary) !important;
+    }
+    
+    .stForm .stTextInput button:hover {
+        color: var(--primary-light) !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -1011,68 +1121,27 @@ def main():
         else:
             st.warning("⚠️ Please enter your API key")
         
-        # Project management (only for authenticated users)
-        render_project_sidebar()
-        
-        # Cloud storage section
-        render_cloud_storage_section()
-        
         st.markdown("---")
         
-        # Statistics
-        st.markdown("### 📊 Session Stats")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Generated", st.session_state.generation_count)
-        with col2:
-            st.metric("In History", len(st.session_state.image_history))
-        
-        st.markdown("---")
-        
-        # Image History
+        # Image History - simplified
         if st.session_state.image_history:
-            st.markdown("### 📜 Recent History")
-            for idx, item in enumerate(reversed(st.session_state.image_history[-5:])):
-                with st.expander(f"🖼️ {item['type']} - {item['timestamp'][:16]}"):
-                    if item['prompt']:
-                        st.caption(f"Prompt: {item['prompt'][:50]}...")
-                    if st.button("Load", key=f"load_history_{idx}"):
+            with st.expander("📜 Recent History", expanded=False):
+                for idx, item in enumerate(reversed(st.session_state.image_history[-5:])):
+                    if st.button(f"🖼️ {item['type'][:12]} - {item['timestamp'][11:16]}", key=f"load_history_{idx}", use_container_width=True):
                         st.session_state.edited_image = item['url']
                         st.rerun()
         
         st.markdown("---")
         
-        # Quick Actions
-        st.markdown("### ⚡ Quick Actions")
-        if st.button("🔄 Clear History"):
-            st.session_state.image_history = []
-            st.session_state.generation_count = 0
-            st.success("History cleared!")
-        
-        if st.button("🗑️ Reset Session"):
-            # Keep auth state
-            auth_state = {
-                'is_authenticated': st.session_state.get('is_authenticated'),
-                'user': st.session_state.get('user'),
-                'supabase_session': st.session_state.get('supabase_session'),
-                'guest_mode': st.session_state.get('guest_mode')
-            }
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            # Restore auth state
-            for key, value in auth_state.items():
-                if value is not None:
-                    st.session_state[key] = value
-            st.rerun()
-        
-        st.markdown("---")
-        
-        # Info
+        # About section
         st.markdown("### ℹ️ About")
-        st.info(
-            "Stencil is a professional AI-powered image editing platform "
-            "that helps you create stunning visuals for your products and marketing needs."
-        )
+        st.markdown("""
+        <div style="background: rgba(99, 102, 241, 0.1); padding: 0.75rem; border-radius: 8px; 
+                    border: 1px solid rgba(99, 102, 241, 0.2); font-size: 0.85rem; color: #94a3b8;">
+            <strong style="color: #e0e7ff;">Stencil</strong> is a professional AI-powered 
+            image editing platform for creating stunning visuals.
+        </div>
+        """, unsafe_allow_html=True)
 
     # Auto-load gallery images when user is logged in
     if st.session_state.get("user") and not st.session_state.get("gallery_loaded"):
@@ -2369,25 +2438,15 @@ def main():
                                     st.success(f"✅ Image loaded!")
                                     st.rerun()
                             else:
-                                # For storage images, show Use and Delete
-                                btn_col1, btn_col2 = st.columns(2)
-                                
-                                with btn_col1:
-                                    if st.button("📌 Use", key=f"use_gallery_{row_idx}_{col_idx}", use_container_width=True):
-                                        st.session_state.edited_image = file["url"]
-                                        st.session_state.current_image_url = file["url"]
-                                        st.success(f"✅ Image loaded!")
+                                # For storage images, show ONLY Delete button (full width)
+                                if st.button("🗑️ Delete", key=f"del_gallery_{row_idx}_{col_idx}", use_container_width=True, help="Permanently delete this image"):
+                                    result = delete_file(file["path"])
+                                    if result["success"]:
+                                        st.session_state.gallery_loaded = False
+                                        st.success("✅ Deleted!")
                                         st.rerun()
-                                
-                                with btn_col2:
-                                    if st.button("🗑️", key=f"del_gallery_{row_idx}_{col_idx}", use_container_width=True, help="Delete image"):
-                                        result = delete_file(file["path"])
-                                        if result["success"]:
-                                            st.session_state.gallery_loaded = False
-                                            st.success("✅ Deleted!")
-                                            st.rerun()
-                                        else:
-                                            st.error(result["message"])
+                                    else:
+                                        st.error(result["message"])
                             
                             st.markdown("</div>", unsafe_allow_html=True)
                 
