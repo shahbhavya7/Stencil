@@ -623,42 +623,36 @@ st.markdown("""
         border-radius: var(--radius-sm) !important;
     }
 
-    /* ===== SECTION TITLE - Purple to Pink Gradient ===== */
-    .section-title {
-        display: inline-block;
-        background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f472b6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin: 0;
-        padding: 0;
-        letter-spacing: -0.02em;
-        text-shadow: none;
-        filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.4)) drop-shadow(0 0 40px rgba(236, 72, 153, 0.2));
-        position: relative;
+    /* ===== GLOWING SECTION HEADER ===== */
+    @keyframes headerGlow {
+        0% { text-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 40px rgba(99, 102, 241, 0.6), 0 0 60px rgba(139, 92, 246, 0.4); }
+        100% { text-shadow: 0 0 30px rgba(167, 139, 250, 1), 0 0 60px rgba(139, 92, 246, 0.8), 0 0 80px rgba(99, 102, 241, 0.5); }
     }
-    
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -4px;
-        left: 0;
-        width: 60px;
-        height: 3px;
-        background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6);
-        border-radius: 3px;
-        opacity: 0.8;
+
+    .glow-header {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.03em;
+        color: #ffffff;
+        text-shadow: 
+            0 0 20px rgba(139, 92, 246, 0.8),
+            0 0 40px rgba(99, 102, 241, 0.6),
+            0 0 60px rgba(139, 92, 246, 0.4);
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        animation: headerGlow 3s ease-in-out infinite alternate;
     }
     
     .section-subtitle {
         color: rgba(196, 181, 253, 0.95) !important;
         font-size: 0.95rem;
-        margin-top: 0.75rem;
+        margin-top: 0;
         margin-bottom: 1.25rem;
         font-weight: 400;
-        letter-spacing: 0.01em; 
+        letter-spacing: 0.01em;
     }
 
     /* ===== MARKDOWN & TEXT ===== */
@@ -1251,21 +1245,8 @@ def main():
     with tabs[0]:
         st.markdown("""
         <div style="margin-bottom: 1.5rem;">
-            <h2 style="
-                color: #d946ef;
-                font-size: 2.2rem;
-                font-weight: 800;
-                margin: 0 0 0.5rem 0;
-                padding: 0;
-                letter-spacing: -0.02em;
-                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
-            ">AI Image Generation</h2>
-            <p style="
-                color: #c4b5fd;
-                font-size: 0.95rem;
-                margin: 0;
-                font-weight: 400;
-            ">Create stunning images from text descriptions using advanced AI models.</p>
+            <h2 class="glow-header">AI Image Generation</h2>
+            <p class="section-subtitle">Create stunning images from text descriptions using advanced AI models.</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1445,21 +1426,8 @@ def main():
     with tabs[1]:
         st.markdown("""
         <div style="margin-bottom: 1.5rem;">
-            <h2 style="
-                color: #d946ef;
-                font-size: 2.2rem;
-                font-weight: 800;
-                margin: 0 0 0.5rem 0;
-                padding: 0;
-                letter-spacing: -0.02em;
-                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
-            ">Product Photography</h2>
-            <p style="
-                color: #c4b5fd;
-                font-size: 0.95rem;
-                margin: 0;
-                font-weight: 400;
-            ">Generate professional product shots and lifestyle images.</p>
+            <h2 class="glow-header">Product Photography</h2>
+            <p class="section-subtitle">Generate professional product shots and lifestyle images.</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1862,21 +1830,8 @@ def main():
     with tabs[2]:
         st.markdown("""
         <div style="margin-bottom: 1.5rem;">
-            <h2 style="
-                color: #d946ef;
-                font-size: 2.2rem;
-                font-weight: 800;
-                margin: 0 0 0.5rem 0;
-                padding: 0;
-                letter-spacing: -0.02em;
-                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
-            ">Generative Fill</h2>
-            <p style="
-                color: #c4b5fd;
-                font-size: 0.95rem;
-                margin: 0;
-                font-weight: 400;
-            ">Draw a mask on the image and describe what you want to generate in that area.</p>
+            <h2 class="glow-header">Generative Fill</h2>
+            <p class="section-subtitle">Draw a mask on the image and describe what you want to generate in that area.</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -2037,21 +1992,8 @@ def main():
     with tabs[3]:
         st.markdown("""
         <div style="margin-bottom: 1.5rem;">
-            <h2 style="
-                color: #d946ef;
-                font-size: 2.2rem;
-                font-weight: 800;
-                margin: 0 0 0.5rem 0;
-                padding: 0;
-                letter-spacing: -0.02em;
-                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
-            ">Erase Elements</h2>
-            <p style="
-                color: #c4b5fd;
-                font-size: 0.95rem;
-                margin: 0;
-                font-weight: 400;
-            ">Upload an image and select the area you want to erase.</p>
+            <h2 class="glow-header">Erase Elements</h2>
+            <p class="section-subtitle">Upload an image and select the area you want to erase.</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -2151,21 +2093,8 @@ def main():
     with tabs[4]:
         st.markdown("""
         <div style="margin-bottom: 1.5rem;">
-            <h2 style="
-                color: #d946ef;
-                font-size: 2.2rem;
-                font-weight: 800;
-                margin: 0 0 0.5rem 0;
-                padding: 0;
-                letter-spacing: -0.02em;
-                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
-            ">Image Filters</h2>
-            <p style="
-                color: #c4b5fd;
-                font-size: 0.95rem;
-                margin: 0;
-                font-weight: 400;
-            ">Apply professional filters and enhancements to your images.</p>
+            <h2 class="glow-header">Image Filters</h2>
+            <p class="section-subtitle">Apply professional filters and enhancements to your images.</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -2311,21 +2240,8 @@ def main():
     with tabs[5]:
             st.markdown("""
             <div style="margin-bottom: 1.5rem;">
-                <h2 style="
-                    color: #d946ef;
-                    font-size: 2.2rem;
-                    font-weight: 800;
-                    margin: 0 0 0.5rem 0;
-                    padding: 0;
-                    letter-spacing: -0.02em;
-                    text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
-                ">Text Overlay</h2>
-                <p style="
-                    color: #c4b5fd;
-                    font-size: 0.95rem;
-                    margin: 0;
-                    font-weight: 400;
-                ">Add custom text to your images with full control over appearance and positioning.</p>
+                <h2 class="glow-header">Text Overlay</h2>
+                <p class="section-subtitle">Add custom text to your images with full control over appearance and positioning.</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -2528,15 +2444,7 @@ def main():
                 st.markdown(f"""
                 <div style="margin-bottom: 1.5rem;">
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-                        <h2 style="
-                            color: #d946ef;
-                            font-size: 2.2rem;
-                            font-weight: 800;
-                            margin: 0;
-                            padding: 0;
-                            letter-spacing: -0.02em;
-                            text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
-                        ">My Gallery</h2>
+                        <h2 class="glow-header" style="margin-bottom: 0;">My Gallery</h2>
                         <span style="background: rgba(30, 41, 59, 1); border: 1px solid rgba(168, 85, 247, 0.4); color: #e0d4fc; 
                                     padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; 
                                     font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem;
@@ -2544,12 +2452,7 @@ def main():
                             ☁️ {image_count} images
                         </span>
                     </div>
-                    <p style="
-                        color: #c4b5fd;
-                        font-size: 0.95rem;
-                        margin: 0.5rem 0 0 0;
-                        font-weight: 400;
-                    ">Your cloud-saved creations</p>
+                    <p class="section-subtitle" style="margin-top: 0.5rem;">Your cloud-saved creations</p>
                 </div>
                 """, unsafe_allow_html=True)
 
