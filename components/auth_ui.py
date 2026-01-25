@@ -11,7 +11,7 @@ from services.auth_service import (
 )
 
 
-def render_auth_page():
+def render_auth_page(cookie_manager=None):
     """Render the full authentication page (login/register)."""
     # Logo and branding with solid bright colors for guaranteed visibility
     st.markdown("""
@@ -44,7 +44,7 @@ def render_auth_page():
         tab1, tab2 = st.tabs(["🔐 Login", "📝 Register"])
         
         with tab1:
-            render_login_form()
+            render_login_form(cookie_manager)
         
         with tab2:
             render_register_form()
@@ -58,7 +58,7 @@ def render_auth_page():
             st.rerun()
 
 
-def render_login_form():
+def render_login_form(cookie_manager=None):
     """Render the login form."""
     # Form container with padding
     st.markdown("<div style='padding: 1.5rem 1.5rem 1rem 1.5rem;'>", unsafe_allow_html=True)
@@ -88,8 +88,18 @@ def render_login_form():
                 with st.spinner("Logging in..."):
                     result = sign_in(email, password)
                     if result["success"]:
+                        # Save session cookies if remember me is checked and cookie_manager is available
+                        if remember_me and cookie_manager:
+                            session = st.session_state.get("supabase_session")
+                            if session:
+                                cookie_manager.set("sb_access_token", session["access_token"], key="set_access_token")
+                                cookie_manager.set("sb_refresh_token", session["refresh_token"], key="set_refresh_token")
+                        
                         st.success(result["message"])
                         st.balloons()
+                        # Allow time for cookies to set
+                        import time
+                        time.sleep(1)
                         st.rerun()
                     else:
                         st.error(result["message"])
@@ -160,7 +170,7 @@ def render_register_form():
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-def render_user_sidebar():
+def render_user_sidebar(cookie_manager=None):
     """Render user info and actions in sidebar."""
     user = get_current_user()
     
@@ -177,6 +187,12 @@ def render_user_sidebar():
         """, unsafe_allow_html=True)
         
         if st.button("🚪 Logout", use_container_width=True, key="user_logout"):
+            if cookie_manager:
+                try:
+                    cookie_manager.delete("sb_access_token")
+                    cookie_manager.delete("sb_refresh_token")
+                except:
+                    pass
             sign_out()
             st.rerun()
         

@@ -11,7 +11,7 @@ from .auth_service import (
     sign_up, sign_in, sign_out,
     get_current_user, is_authenticated,
     get_user_preferences, save_user_preferences,
-    send_password_reset, get_supabase_client
+    send_password_reset, get_supabase_client, restore_session
 )
 from .project_service import (
     save_project, update_project, load_project,
@@ -36,7 +36,7 @@ __all__ = [
     'sign_up', 'sign_in', 'sign_out',
     'get_current_user', 'is_authenticated',
     'get_user_preferences', 'save_user_preferences',
-    'send_password_reset', 'get_supabase_client',
+    'send_password_reset', 'get_supabase_client', 'restore_session',
     # Project services
     'save_project', 'update_project', 'load_project',
     'list_projects', 'delete_project',

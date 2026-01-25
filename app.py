@@ -11,8 +11,10 @@ from services import (
     generate_hd_image,
     erase_foreground,
     # Auth and project management
-    is_authenticated
+    is_authenticated,
+    restore_session
 )
+import extra_streamlit_components as stx
 from components.auth_ui import (
     render_auth_page, render_user_sidebar, 
     render_settings_modal, check_authentication
@@ -1160,9 +1162,27 @@ def add_text_to_image(image, text, font_size=50, color="#000000", position="cent
 def main():
     initialize_session_state()
     
+    # Initialize cookie manager
+    cookie_manager = stx.CookieManager()
+    
+    # Attempt to restore session from cookies if not authenticated
+    if not st.session_state.get("is_authenticated") and not st.session_state.get("guest_mode"):
+        try:
+            cookies = cookie_manager.get_all()
+            if cookies:
+                access_token = cookies.get("sb_access_token")
+                refresh_token = cookies.get("sb_refresh_token")
+                
+                if access_token and refresh_token:
+                    result = restore_session(access_token, refresh_token)
+                    if result["success"]:
+                        st.rerun()
+        except Exception:
+            pass
+            
     # Check if user is authenticated
     if not check_authentication():
-        render_auth_page()
+        render_auth_page(cookie_manager)
         return
     
     # Compact header
@@ -1187,7 +1207,7 @@ def main():
     # Enhanced Sidebar
     with st.sidebar:
         # User info section (login status, settings, logout)
-        render_user_sidebar()
+        render_user_sidebar(cookie_manager)
         
         st.markdown("### ⚙️ Settings")
         

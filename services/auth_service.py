@@ -284,3 +284,60 @@ def send_password_reset(email: str) -> dict:
         
     except Exception as e:
         return {"success": False, "message": f"Error: {str(e)}"}
+
+
+def restore_session(access_token: str, refresh_token: str) -> dict:
+    """
+    Restore a session using stored tokens.
+    
+    Args:
+        access_token: The access token
+        refresh_token: The refresh token
+        
+    Returns:
+        dict with success status and user data if successful
+    """
+    try:
+        client = get_supabase_client()
+        if not client:
+            return {"success": False, "message": "Supabase not configured"}
+            
+        # Attempt to set the session with the tokens
+        response = client.auth.set_session(access_token, refresh_token)
+        
+        if response.user and response.session:
+            # Extract display name
+            user_metadata = response.user.user_metadata or {}
+            display_name = user_metadata.get("display_name", response.user.email.split("@")[0])
+            
+            # Update session state
+            st.session_state["supabase_session"] = {
+                "access_token": response.session.access_token,
+                "refresh_token": response.session.refresh_token,
+                "user": {
+                    "id": response.user.id,
+                    "email": response.user.email,
+                    "name": display_name
+                }
+            }
+            st.session_state["user"] = {
+                "id": response.user.id,
+                "email": response.user.email,
+                "name": display_name
+            }
+            st.session_state["is_authenticated"] = True
+            
+            return {
+                "success": True, 
+                "message": "Session restored",
+                "user": st.session_state["user"],
+                "session": {
+                    "access_token": response.session.access_token,
+                    "refresh_token": response.session.refresh_token
+                }
+            }
+            
+        return {"success": False, "message": "Could not restore session"}
+        
+    except Exception as e:
+        return {"success": False, "message": f"Session restoration error: {str(e)}"}
