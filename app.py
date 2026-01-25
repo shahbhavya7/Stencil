@@ -1547,15 +1547,14 @@ def main():
                     shot_type = st.radio("Shot Type", ["Text Prompt", "Reference Image"])
                     
                     # Common settings for both types
-                    col1, col2 = st.columns(2)
-                    with col1:
+                    ls_col1, ls_col2 = st.columns(2)
+                    with ls_col1:
                         placement_type = st.selectbox("Placement Type", [
                             "Original", "Automatic", "Manual Placement",
                             "Manual Padding", "Custom Coordinates"
                         ])
                         num_results = st.slider("Number of Results", 1, 8, 4)
-                        sync_mode = st.checkbox("Synchronous Mode", False,
-                            help="Wait for results instead of getting URLs immediately")
+                        sync_mode = True
                         original_quality = st.checkbox("Original Quality", False,
                             help="Maintain original image quality")
                         
@@ -1578,7 +1577,7 @@ def main():
                             shot_width = st.number_input("Width", 100, 2000, 1000)
                             shot_height = st.number_input("Height", 100, 2000, 1000)
                     
-                    with col2:
+                    with ls_col2:
                         if placement_type == "Custom Coordinates":
                             st.subheader("Product Position")
                             fg_width = st.number_input("Product Width", 50, 1000, 500)
@@ -1638,7 +1637,7 @@ def main():
                                     
                                     if result:
                                         # Debug logging
-                                        st.write("Debug - Raw API Response:", result)
+
                                         
                                         if sync_mode:
                                             if isinstance(result, dict):
@@ -1739,7 +1738,7 @@ def main():
                                     
                                     if result:
                                         # Debug logging
-                                        st.write("Debug - Raw API Response:", result)
+
                                         
                                         if sync_mode:
                                             if isinstance(result, dict):
@@ -1889,9 +1888,7 @@ def main():
                 col_a, col_b = st.columns(2)
                 with col_a:
                     num_results = st.slider("Number of variations", 1, 4, 1)
-                    sync_mode = st.checkbox("Synchronous Mode", False,
-                        help="Wait for results instead of getting URLs immediately",
-                        key="gen_fill_sync_mode")
+                    sync_mode = True
                 
                 with col_b:
                     seed = st.number_input("Seed (optional)", min_value=0, value=0,
@@ -1935,7 +1932,7 @@ def main():
                             )
                             
                             if result:
-                                st.write("Debug - API Response:", result)
+
                                 
                                 if sync_mode:
                                     if "urls" in result and result["urls"]:

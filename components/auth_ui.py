@@ -176,14 +176,9 @@ def render_user_sidebar():
         </p>
         """, unsafe_allow_html=True)
         
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("⚙️ Settings", use_container_width=True, key="user_settings"):
-                st.session_state["show_settings"] = True
-        with col2:
-            if st.button("🚪 Logout", use_container_width=True, key="user_logout"):
-                sign_out()
-                st.rerun()
+        if st.button("🚪 Logout", use_container_width=True, key="user_logout"):
+            sign_out()
+            st.rerun()
         
         st.markdown("---")
     else:
