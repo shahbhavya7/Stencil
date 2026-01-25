@@ -234,40 +234,91 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
     }
 
-    /* ===== TABS ===== */
+    /* ===== TABS - Modern Purple to Pink Gradient ===== */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 4px;
-        background: var(--bg-glass);
-        backdrop-filter: blur(10px);
-        padding: 6px;
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border-color);
+        gap: 8px;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(236, 72, 153, 0.08) 100%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 10px 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(168, 85, 247, 0.25);
+        box-shadow: 
+            0 4px 20px rgba(139, 92, 246, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     
     .stTabs [data-baseweb="tab"] {
-        border-radius: var(--radius-sm);
-        padding: 0.5rem 1rem;
-        background: transparent;
-        color: var(--text-secondary);
-        font-weight: 500;
-        font-size: 0.875rem;
-        transition: all var(--transition-fast);
-        border: none !important;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        background: rgba(30, 27, 75, 0.5);
+        color: #e0d4fc !important;
+        font-weight: 600;
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(168, 85, 247, 0.2) !important;
+        position: relative;
+        overflow: hidden;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stTabs [data-baseweb="tab"]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.5s ease;
     }
     
     .stTabs [data-baseweb="tab"]:hover {
-        color: var(--text-primary);
-        background: rgba(99, 102, 241, 0.1);
+        color: #ffffff !important;
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(236, 72, 153, 0.2) 100%);
+        border-color: rgba(236, 72, 153, 0.4) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover::before {
+        left: 100%;
     }
     
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
-        color: white !important;
-        box-shadow: var(--shadow-sm);
+        background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f472b6 100%) !important;
+        color: #ffffff !important;
+        font-weight: 700;
+        border: none !important;
+        box-shadow: 
+            0 6px 25px rgba(168, 85, 247, 0.45),
+            0 0 40px rgba(236, 72, 153, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        transform: translateY(-1px);
+    }
+    
+    .stTabs [aria-selected="true"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 8px 30px rgba(168, 85, 247, 0.5),
+            0 0 50px rgba(236, 72, 153, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
     }
     
     /* Tab highlight line - hide it */
     .stTabs [data-baseweb="tab-highlight"] {
+        display: none;
+    }
+    
+    /* Tab panel container */
+    .stTabs [data-baseweb="tab-panel"] {
+        padding-top: 1.5rem;
+    }
+    
+    /* Tab border bottom styling */
+    .stTabs [data-baseweb="tab-border"] {
         display: none;
     }
 
@@ -570,6 +621,44 @@ st.markdown("""
         background: var(--bg-glass) !important;
         border: 1px solid var(--border-color) !important;
         border-radius: var(--radius-sm) !important;
+    }
+
+    /* ===== SECTION TITLE - Purple to Pink Gradient ===== */
+    .section-title {
+        display: inline-block;
+        background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f472b6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0;
+        padding: 0;
+        letter-spacing: -0.02em;
+        text-shadow: none;
+        filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.4)) drop-shadow(0 0 40px rgba(236, 72, 153, 0.2));
+        position: relative;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #a855f7, #ec4899, #f472b6);
+        border-radius: 3px;
+        opacity: 0.8;
+    }
+    
+    .section-subtitle {
+        color: rgba(196, 181, 253, 0.95) !important;
+        font-size: 0.95rem;
+        margin-top: 0.75rem;
+        margin-bottom: 1.25rem;
+        font-weight: 400;
+        letter-spacing: 0.01em; 
     }
 
     /* ===== MARKDOWN & TEXT ===== */
@@ -1160,8 +1249,25 @@ def main():
     
     # Generate Images Tab
     with tabs[0]:
-        st.markdown("### 🎨 AI Image Generation")
-        st.markdown("Create stunning images from text descriptions using advanced AI models.")
+        st.markdown("""
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="
+                color: #d946ef;
+                font-size: 2.2rem;
+                font-weight: 800;
+                margin: 0 0 0.5rem 0;
+                padding: 0;
+                letter-spacing: -0.02em;
+                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
+            ">AI Image Generation</h2>
+            <p style="
+                color: #c4b5fd;
+                font-size: 0.95rem;
+                margin: 0;
+                font-weight: 400;
+            ">Create stunning images from text descriptions using advanced AI models.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         col1, col2 = st.columns([2, 1])
         with col1:
@@ -1337,7 +1443,25 @@ def main():
     
     # Product Photography Tab
     with tabs[1]:
-        st.header("Product Photography")
+        st.markdown("""
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="
+                color: #d946ef;
+                font-size: 2.2rem;
+                font-weight: 800;
+                margin: 0 0 0.5rem 0;
+                padding: 0;
+                letter-spacing: -0.02em;
+                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
+            ">Product Photography</h2>
+            <p style="
+                color: #c4b5fd;
+                font-size: 0.95rem;
+                margin: 0;
+                font-weight: 400;
+            ">Generate professional product shots and lifestyle images.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         uploaded_file = st.file_uploader("Upload Product Image", type=["png", "jpg", "jpeg"], key="product_upload")
         if uploaded_file:
@@ -1736,8 +1860,25 @@ def main():
 
     # Generative Fill Tab
     with tabs[2]:
-        st.header("🎨 Generative Fill")
-        st.markdown("Draw a mask on the image and describe what you want to generate in that area.")
+        st.markdown("""
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="
+                color: #d946ef;
+                font-size: 2.2rem;
+                font-weight: 800;
+                margin: 0 0 0.5rem 0;
+                padding: 0;
+                letter-spacing: -0.02em;
+                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
+            ">Generative Fill</h2>
+            <p style="
+                color: #c4b5fd;
+                font-size: 0.95rem;
+                margin: 0;
+                font-weight: 400;
+            ">Draw a mask on the image and describe what you want to generate in that area.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         uploaded_file = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"], key="fill_upload")
         if uploaded_file:
@@ -1894,8 +2035,25 @@ def main():
 
     # Erase Elements Tab
     with tabs[3]:
-        st.header("🎨 Erase Elements")
-        st.markdown("Upload an image and select the area you want to erase.")
+        st.markdown("""
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="
+                color: #d946ef;
+                font-size: 2.2rem;
+                font-weight: 800;
+                margin: 0 0 0.5rem 0;
+                padding: 0;
+                letter-spacing: -0.02em;
+                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
+            ">Erase Elements</h2>
+            <p style="
+                color: #c4b5fd;
+                font-size: 0.95rem;
+                margin: 0;
+                font-weight: 400;
+            ">Upload an image and select the area you want to erase.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         uploaded_file = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"], key="erase_upload")
         if uploaded_file:
@@ -1991,8 +2149,25 @@ def main():
     
     # Image Filters Tab
     with tabs[4]:
-        st.markdown("### 🎭 Image Filters & Enhancement")
-        st.markdown("Apply professional filters and enhancements to your images.")
+        st.markdown("""
+        <div style="margin-bottom: 1.5rem;">
+            <h2 style="
+                color: #d946ef;
+                font-size: 2.2rem;
+                font-weight: 800;
+                margin: 0 0 0.5rem 0;
+                padding: 0;
+                letter-spacing: -0.02em;
+                text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
+            ">Image Filters</h2>
+            <p style="
+                color: #c4b5fd;
+                font-size: 0.95rem;
+                margin: 0;
+                font-weight: 400;
+            ">Apply professional filters and enhancements to your images.</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         uploaded_file = st.file_uploader(
             "📤 Upload Image", 
@@ -2134,8 +2309,25 @@ def main():
         
     # Text Overlay Tab
     with tabs[5]:
-            st.markdown("### 📝 Text Overlay")
-            st.markdown("Add custom text to your images with full control over appearance and positioning.")
+            st.markdown("""
+            <div style="margin-bottom: 1.5rem;">
+                <h2 style="
+                    color: #d946ef;
+                    font-size: 2.2rem;
+                    font-weight: 800;
+                    margin: 0 0 0.5rem 0;
+                    padding: 0;
+                    letter-spacing: -0.02em;
+                    text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
+                ">Text Overlay</h2>
+                <p style="
+                    color: #c4b5fd;
+                    font-size: 0.95rem;
+                    margin: 0;
+                    font-weight: 400;
+                ">Add custom text to your images with full control over appearance and positioning.</p>
+            </div>
+            """, unsafe_allow_html=True)
             
             uploaded_file = st.file_uploader(
                 "📤 Upload Image", 
@@ -2318,89 +2510,79 @@ def main():
                     """, unsafe_allow_html=True)
 
     # My Gallery Tab
+    # My Gallery Tab
     with tabs[6]:
-        st.markdown("### 🖼️ My Gallery")
-        st.markdown("View and manage all your saved images from the database.")
-        
         # Check if user is logged in
         if not st.session_state.get("user"):
             st.warning("🔐 Please login to view your saved images.")
             st.info("Your gallery will automatically load once you sign in.")
         else:
-            # Refresh button
-            col_refresh, col_count, col_status = st.columns([1, 2, 1])
-            with col_refresh:
-                if st.button("🔄 Refresh Gallery", use_container_width=True):
+            # Get image count
+            image_count = len(st.session_state.get("gallery_images", []))
+            
+            # 1. Header Section
+            # We use columns to separate the Title/Badge (Left) and Refresh Button (Right)
+            col_header_left, col_header_right = st.columns([3, 1])
+            
+            with col_header_left:
+                st.markdown(f"""
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                        <h2 style="
+                            color: #d946ef;
+                            font-size: 2.2rem;
+                            font-weight: 800;
+                            margin: 0;
+                            padding: 0;
+                            letter-spacing: -0.02em;
+                            text-shadow: 0 0 30px rgba(217, 70, 239, 0.5), 0 0 60px rgba(236, 72, 153, 0.3);
+                        ">My Gallery</h2>
+                        <span style="background: rgba(30, 41, 59, 1); border: 1px solid rgba(168, 85, 247, 0.4); color: #e0d4fc; 
+                                    padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; 
+                                    font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem;
+                                    box-shadow: 0 2px 8px rgba(168, 85, 247, 0.15);">
+                            ☁️ {image_count} images
+                        </span>
+                    </div>
+                    <p style="
+                        color: #c4b5fd;
+                        font-size: 0.95rem;
+                        margin: 0.5rem 0 0 0;
+                        font-weight: 400;
+                    ">Your cloud-saved creations</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with col_header_right:
+                # Align the button to the right/top visually
+                st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+                if st.button("↻ Refresh", use_container_width=True):
                     st.session_state.gallery_loaded = False
                     load_gallery_images()
-                    st.success("✅ Gallery refreshed!")
+                    st.success("Refreshed")
                     st.rerun()
-            
-            with col_count:
-                image_count = len(st.session_state.get("gallery_images", []))
-                st.markdown(f"**📊 Total Images:** {image_count}")
-            
-            with col_status:
-                if st.session_state.get("gallery_loaded"):
-                    st.markdown("✅ Loaded")
-                else:
-                    st.markdown("⏳ Loading...")
-            
-            st.markdown("---")
-            
-            # Get gallery images (now includes both storage and project images)
+
+            # Load images if not loaded
             gallery_images = st.session_state.get("gallery_images", [])
-            
-            # If gallery not loaded or empty, try loading again
             if not gallery_images and st.session_state.get("gallery_loaded"):
                 load_gallery_images()
                 gallery_images = st.session_state.get("gallery_images", [])
-            
-            # Show info about image sources
-            with st.expander("ℹ️ Image Sources", expanded=False):
-                st.info("""
-                **Gallery shows images from:**
-                - 📁 **Cloud Storage** - Images saved with "Save to Gallery" button
-                - 📂 **Projects** - Images stored in your saved projects
-                
-                *Tip: Use the "Save to Gallery" button when generating images to save them to cloud storage for permanent access.*
-                """)
-            
-            # Show any stored error
-            if st.session_state.get("gallery_error"):
-                with st.expander("⚠️ Info", expanded=False):
-                    st.warning(f"Note: {st.session_state.gallery_error}")
-            
+
+            # 2. Main Content Area
             if not gallery_images:
+                # Empty State
                 st.info("📭 Your gallery is empty. Start by generating or editing images and saving them to your gallery!")
                 
-                # Feature cards
                 col_f1, col_f2, col_f3 = st.columns(3)
                 with col_f1:
-                    st.markdown("""
-                    <div class="feature-card">
-                    <h4>🎨 Generate</h4>
-                    <p>Create AI images and save your favorites</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
+                    st.markdown("""<div class="feature-card"><h4>🎨 Generate</h4><p>Create AI images</p></div>""", unsafe_allow_html=True)
                 with col_f2:
-                    st.markdown("""
-                    <div class="feature-card">
-                    <h4>✨ Edit</h4>
-                    <p>Apply filters and effects, then save</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
+                    st.markdown("""<div class="feature-card"><h4>✨ Edit</h4><p>Apply filters & save</p></div>""", unsafe_allow_html=True)
                 with col_f3:
-                    st.markdown("""
-                    <div class="feature-card">
-                    <h4>☁️ Access Anywhere</h4>
-                    <p>Your images are stored in the cloud</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown("""<div class="feature-card"><h4>☁️ Cloud</h4><p>Accessible anywhere</p></div>""", unsafe_allow_html=True)
+            
             else:
-                # Display in grid - 4 columns
+                # Image Grid
                 cols_per_row = 4
                 rows = [gallery_images[i:i + cols_per_row] for i in range(0, len(gallery_images), cols_per_row)]
                 
@@ -2408,51 +2590,50 @@ def main():
                     cols = st.columns(cols_per_row)
                     for col_idx, file in enumerate(row):
                         with cols[col_idx]:
-                            # Determine source type
-                            is_project_image = file.get("source") == "project"
-                            source_icon = "📂" if is_project_image else "☁️"
-                            source_type = file.get("project_name", "Project") if is_project_image else "Storage"
+                            # Card Container Start
+                            # We can't put buttons inside HTML div in Streamlit easily without component hacks.
+                            # So we simulate the card visually.
                             
-                            # Image container with styling
-                            border_color = "rgba(139, 92, 246, 0.3)" if is_project_image else "rgba(99, 102, 241, 0.2)"
-                            st.markdown(f"""
-                            <div style="background: rgba(30, 41, 59, 0.6); padding: 0.5rem; 
-                                        border-radius: 12px; border: 1px solid {border_color};
-                                        margin-bottom: 1rem;">
-                            """, unsafe_allow_html=True)
-                            
-                            # Display image
+                            # 1. Image
                             st.image(file["url"], use_column_width=True)
                             
-                            # Filename and source (truncated)
+                            # 2. Filename (Caption)
                             filename = file.get("name", "image")
-                            display_name = filename[:15] + "..." if len(filename) > 15 else filename
-                            st.caption(f"{source_icon} {display_name}")
+                            display_name = filename[:20] + "..." if len(filename) > 20 else filename
                             
-                            # Action buttons
-                            if is_project_image:
-                                # For project images, only show Use button
-                                if st.button("📌 Use", key=f"use_gallery_{row_idx}_{col_idx}", use_container_width=True):
+                            st.markdown(f"""
+                            <div style="margin-top: -0.5rem; margin-bottom: 0.5rem;">
+                                <p style="color: #64748b; font-size: 0.8rem; margin: 0;">{display_name}</p>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            # 3. Action Button
+                            is_project = file.get("source") == "project"
+                            
+                            if is_project:
+                                if st.button("📌 Use", key=f"use_{row_idx}_{col_idx}", use_container_width=True):
                                     st.session_state.edited_image = file["url"]
-                                    st.session_state.current_image_url = file["url"]
-                                    st.success(f"✅ Image loaded!")
+                                    st.success("Loaded!")
                                     st.rerun()
                             else:
-                                # For storage images, show ONLY Delete button (full width)
-                                if st.button("🗑️ Delete", key=f"del_gallery_{row_idx}_{col_idx}", use_container_width=True, help="Permanently delete this image"):
+                                if st.button("🗑 Delete", key=f"del_{row_idx}_{col_idx}", use_container_width=True):
                                     result = delete_file(file["path"])
                                     if result["success"]:
                                         st.session_state.gallery_loaded = False
-                                        st.success("✅ Deleted!")
                                         st.rerun()
                                     else:
-                                        st.error(result["message"])
-                            
-                            st.markdown("</div>", unsafe_allow_html=True)
-                
-                # Bulk actions at the bottom
-                st.markdown("---")
-                st.markdown("**💡 Tip:** 📂 = From project, ☁️ = From cloud storage. Click 'Use' to load an image into the editor.")
+                                        st.error(result.get("message", "Error deleting"))
+
+            # 3. Footer Banner
+            st.markdown("""
+            <div style="margin-top: 3rem; background: rgba(30, 41, 59, 0.5); border-radius: 8px; 
+                        padding: 1rem; display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 1.2rem;">💡</span>
+                <p style="color: #94a3b8; font-size: 0.85rem; margin: 0;">
+                    Images saved here are stored securely in the cloud and accessible from any device.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
