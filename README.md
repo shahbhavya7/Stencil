@@ -351,33 +351,7 @@ SUPABASE_URL=https://xxx.supabase.co    # Supabase project URL
 SUPABASE_KEY=your_anon_key              # Supabase anonymous key
 ```
 
-## 🐛 Troubleshooting
 
-### Common Issues
-
-**1. API Key Errors**
-- Ensure `BRIA_API_KEY` is set correctly in `.env`
-- Verify API key is valid and has sufficient credits
-
-**2. Supabase Connection Issues**
-- Check `SUPABASE_URL` and `SUPABASE_KEY` are correct
-- Ensure database tables are created
-- Verify storage bucket exists and is public
-
-**3. Image Upload Failures**
-- Check file size (max 10MB by default)
-- Ensure supported format (PNG, JPG, JPEG)
-- Verify storage bucket permissions
-
-**4. Module Import Errors**
-```bash
-pip install --upgrade -r requirements.txt
-```
-
-**5. Streamlit Port Already in Use**
-```bash
-streamlit run app.py --server.port 8502
-```
 
 ## 🔮 Future Roadmap
 
@@ -408,4 +382,4 @@ streamlit run app.py --server.port 8502
 
 ---
 
-*Last updated: January 2025*
+*Last updated: January 2026*
